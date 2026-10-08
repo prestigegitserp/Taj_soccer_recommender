@@ -18,8 +18,10 @@ def arrival_time(players:pd.DataFrame, X, Y, reaction:float=.7, vmax:float=6.0):
         return np.full(X.shape,np.inf)
     best=np.full(X.shape,np.inf)
     for r in players.itertuples():
-        vx=float(r.vx) if pd.notna(r.vx) else 0.
-        vy=float(r.vy) if pd.notna(r.vy) else 0.
+        vx_raw=getattr(r,"vx",0.)
+        vy_raw=getattr(r,"vy",0.)
+        vx=float(vx_raw) if pd.notna(vx_raw) else 0.
+        vy=float(vy_raw) if pd.notna(vy_raw) else 0.
         rx=float(r.x)+np.clip(vx,-vmax,vmax)*reaction
         ry=float(r.y)+np.clip(vy,-vmax,vmax)*reaction
         t=reaction+np.hypot(X-rx,Y-ry)/vmax
