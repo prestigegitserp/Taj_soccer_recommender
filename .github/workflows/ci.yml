@@ -17,3 +17,17 @@ jobs:
       - run: pytest -q
       - run: taj demo --out data/demo
       - run: taj analyze --data data/demo --out outputs/report.json
+      - run: taj viewer-export --data data/demo --out outputs/viewer.json --max-frames 8
+      - run: taj html-export --data data/demo --out outputs/report.html
+      - name: Validate JSON notebook and browser payload
+        run: |
+          python - <<'PY'
+          import json,nbformat
+          from pathlib import Path
+          nb=nbformat.read("notebooks/Taj_Colab.ipynb",as_version=4)
+          nbformat.validate(nb)
+          v=json.loads(Path("outputs/viewer.json").read_text())
+          assert v["format"]=="taj-viewer-v1" and len(v["frames"])==8
+          assert Path("outputs/report.html").exists()
+          print("Colab notebook, viewer and HTML export: VALID")
+          PY
