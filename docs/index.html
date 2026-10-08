@@ -63,7 +63,7 @@ input[type=file]::file-selector-button{background:#20534d;color:#dcfff6;border:0
 <body>
 <header><nav class="nav">
 <div class="brand"><span class="logo">T</span><span>TAJ <span style="color:#24e1b5">INTELLIGENCE</span></span></div>
-<div class="nav-links"><a href="#lab">Visual Lab</a><a href="#reports">Evidence Studio</a><a target="_blank" rel="noopener" href="https://github.com/prestigegitserp/Taj_soccer_recommender">GitHub ↗</a></div>
+<div class="nav-links"><a href="#lab">Visual Lab</a><a href="#reports">Evidence Studio</a><a href="./viewer.html">Real Tracking Viewer</a><a target="_blank" rel="noopener" href="https://github.com/prestigegitserp/Taj_soccer_recommender">GitHub ↗</a></div>
 </nav></header>
 <main>
 <section class="hero">
@@ -227,7 +227,7 @@ up.addEventListener("change",async()=>{
  try{
   if(file.size>4e6)throw new Error("حداکثر اندازه فایل ۴ مگابایت است.");
   const report=JSON.parse(await file.text());
-  if(!report||report.schema_version!=="1.0"||!Array.isArray(report.findings)||!Array.isArray(report.recommendations))
+  if(!report||!String(report.schema_version).startsWith("1.")||!Array.isArray(report.findings)||!Array.isArray(report.recommendations))
    throw new Error("ساختار JSON سازگار نیست؛ خروجی taj analyze را استفاده کن.");
   const el=document.getElementById("evidence");el.replaceChildren();
   const intro=document.createElement("p");intro.textContent="Match "+String(report.match_id)+" · Provider "+String(report.provider)+
