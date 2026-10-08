@@ -109,7 +109,11 @@ def load_skillcorner_local(match_id: str, root: str | Path, limit: int | None=10
         if isinstance(p,dict):
             group=p.get("team_id") or p.get("team",{}).get("id") if isinstance(p.get("team"),dict) else p.get("team_id")
             if group is not None:
-                players_map[str(p.get("id"))]=teams.get(str(group),"Unknown")
+                # Tracking uses a trackable-object identifier on many SkillCorner exports.
+                side = teams.get(str(group),"Unknown")
+                for key in ("id","trackable_object","team_player_id"):
+                    if p.get(key) is not None:
+                        players_map[str(p[key])] = side
     rows,balls=[],[]
     with trfile.open(encoding="utf-8") as f:
         for ix,line in enumerate(f):
