@@ -14,6 +14,7 @@ from taj.plotting import pitch_figure,control_difference
 from taj.advanced import SpatialConfig,quick_report_frame,pass_interception
 from taj.features import spatial_summary
 from taj.export import export_html
+from taj.viewer import build_viewer_payload
 
 st.set_page_config(page_title="TAJ — Football Intelligence",page_icon="⚽",
                    initial_sidebar_state="expanded",layout="wide")
@@ -211,5 +212,9 @@ with tabs[4]:
     st.download_button("⬇️ Self-contained HTML",export_html(report,tracking,ball,
         Path("outputs")/f"taj_{report['match_id']}.html").read_bytes(),
         file_name=f"taj_{report['match_id']}.html",mime="text/html")
+    bundle_json=json.dumps(build_viewer_payload(tracking,ball,report,max_frames=130,step_m=6),
+                       ensure_ascii=False,allow_nan=False).encode("utf-8")
+    st.download_button("⬇️ Interactive browser viewer.json",bundle_json,
+                       file_name=f"taj_{report['match_id']}_viewer.json",mime="application/json")
     st.markdown("**Methodology:** [model card](https://github.com/prestigegitserp/Taj_soccer_recommender/blob/main/docs/METHODOLOGY.md)")
     st.info("For raw SkillCorner you must check the half-time defended-goal selector yourself. Tracking inference is never silently converted into verified tactical outcome.")
