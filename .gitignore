@@ -1,0 +1,11 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+.env
+data/
+outputs/
+*.parquet
+*.arrow
+.ipynb_checkpoints/
+.DS_Store
