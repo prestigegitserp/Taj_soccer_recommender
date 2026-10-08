@@ -1,6 +1,7 @@
-"""Provider adapters, preserving physical units and provenance.
-IDSSE is loaded via Kloppy. New-format SkillCorner is loaded from its Git LFS JSONL
-locally so that is_detected survives normalization.
+"""Provider adapters, preserving metre units and provenance.
+IDSSE is transformed to STATIC_HOME_AWAY analytic orientation: periods may be rotated;
+this is NOT a permanent camera/pitch orientation. SkillCorner raw JSONL uses provider
+pitch-centred physical coordinates and includes visibility information.
 """
 from __future__ import annotations
 import json
@@ -145,8 +146,16 @@ def load_skillcorner_local(match_id: str, root: str | Path, limit: int | None=10
                 balls.append(dict(match_id=match_id,period=period,t_s=sec,frame_id=fid,
                                   x=float(ball["x"]),y=float(ball["y"])))
     if not rows:
-        raise ValueError("No player positions resolved: check the match metadata/team mapping.")
-    return add_velocity(pd.DataFrame(rows)), pd.DataFrame(balls),pd.DataFrame()
+        raise ValueError("No player positions resolved: check match metadata/team IDs and Git LFS data.")
+    event_file=folder/(match_id+"_dynamic_events.csv")
+    if event_file.exists():
+        events=pd.read_csv(event_file,low_memory=False)
+        events["match_id"]=match_id
+        events["provider"]="skillcorner"
+        events["feed_kind"]="dynamic_events_not_full_event_feed"
+    else:
+        events=pd.DataFrame()
+    return add_velocity(pd.DataFrame(rows)), pd.DataFrame(balls), events
 
 def write_bundle(players,ball,events,out_dir):
     path=Path(out_dir);path.mkdir(parents=True,exist_ok=True)
