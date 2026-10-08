@@ -1,0 +1,19 @@
+name: Python checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -e ".[dev,api,dashboard]"
+      - run: python -m compileall -q src dashboard.py
+      - run: pytest -q
+      - run: taj demo --out data/demo
+      - run: taj analyze --data data/demo --out outputs/report.json
