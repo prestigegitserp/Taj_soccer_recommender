@@ -19,3 +19,22 @@ jobs:
         run: pip install -e .
       - name: Read 60 real IDSSE frames and validate coordinates
         run: python scripts/integration_smoke.py
+
+  skillcorner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: Install Git LFS and download selected match
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y git-lfs
+          git lfs install
+          GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 https://github.com/SkillCorner/opendata.git external/opendata
+          cd external/opendata
+          git lfs pull -I "data/matches/1925299/1925299_tracking_extrapolated.jsonl"
+      - run: python scripts/skillcorner_smoke.py
