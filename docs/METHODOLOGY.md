@@ -1,39 +1,79 @@
-# Model card and methodology
+# TAJ Research Methodology and Model Card v0.3
+**Updated 2026-10-08** · Research software / unvalidated tactical recommendations.
 
-**Taj v0.2 — Experimental baseline / October 2026.**
+## The intended task
 
-## Purpose
-Screen match tracking for spatial access and candidate tactical exposures. Assist a human football analyst in reviewing episodes. Not a betting engine, not an autonomous coach, not a validated match predictor.
+Assist a qualified analyst by visualizing movements in open historical tracking, detecting repeated geometric access to a defending third, and ranking hypotheses for manual review. This is NOT an autonomous coach, a causal tactical simulator, or a betting model.
 
-## Sources
-IDSSE/Sportec open tracking and events (2022/23 Bundesliga); SkillCorner broadcast-derived A-League tracking (2024/25). Source matches are historical; no 2026 top-team continuous tracking is included.
+## Data
 
-## Reference frame
-Canonical pitch centre: x ∈ [-52.5,52.5], y ∈ [-34,34], metres.
-Kloppy is explicitly transformed to 105x68 metric dimensions and static home/away orientation before centering; SkillCorner raw exports use centred metres. Both physical direction and who attacks which goal must be checked against period metadata. Analysis takes defended-goal sign as a **user-supplied** parameter, never silently guesses at half-time.
+- **IDSSE/Sportec:** 7 released Bundesliga / 2. Bundesliga games with detailed event + tracking. Kloppy \`sportec.load_open_tracking_data\` used for normalized tracking. Network integration smoke has verified 60 real frames, 1320 player observations and 60 ball coordinates for match \`J03WMX\`.
+- **SkillCorner:** A-League 2024/25 10 broadcast-tracked games, each match with extrapolated player positions (\`is_detected\`), player metadata, dynamic events and phases. Git LFS files are separate from Git pointers. Dynamic events provide EPV/pressure signals but **are not** an exhaustive Opta-style event feed.
+- **Synthetic demonstration:** procedurally generated geometry only; should never be used to claim team weaknesses or match results.
 
-## Access heuristic
-At each grid point compute approximate time of arrival for each side (min across players). Approximate adjusted position after reaction time using capped velocity, with a shared speed ceiling. Logistic mapping of arrival-time difference creates an uncalibrated *relative access index*, not a measured probability.
+## Coordinate frames: critical
 
-## Exposure hypothesis
-Compute mean opponent access across lanes of a defending team's final third. Select intervals above a configurable threshold, count at most one sample per disjoint 12-second window for each team/period/match. Require >=4 windows before emitting a hypothesis. Note that time windows may still be tactically dependent, and this cannot prove conceded chances.
+Canonical units: metres, a 105×68 centred grid. However, two *orientations* must not be conflated:
+1. **Kloppy / IDSSE**: \`STATIC_HOME_AWAY\` transforms source positions so home attacks +x in *both* periods. This can rotate the physical second-half field; Home therefore *analytically* defends -x at all times.
+2. **SkillCorner raw**: x/y centred on original field coordinates. Team defensive direction can switch after halftime. User MUST supply the defended goal sign for every period, confirmed against meta/video.
 
-## Recommendation
-Map supported exposed zones to a **small explicit candidate playbook**. Rank by access intensity, nonadjacent support, and an arbitrary risk penalty. Scores are relative only, not probabilities, goal lift or causal estimates. Link every suggestion to frame IDs and match periods. If no support, return an empty list.
+The algorithm ranks regions by **defended goal**, not one arbitrary left-to-right assumption. No automatic direction inference is claimed for raw SkillCorner.
 
-## Limitations
-- Mixed providers may have different visibility, observation flags and raw event definitions.
-- SkillCorner's new-format tracking can contain extrapolated positions; avoid interpreting them as physically observed.
-- First derivative velocities can be noisy and become NaN over large timestamp gaps.
-- The current code has no opponent trajectory prediction, robust pass interception, goalkeeper-specific physics, ball flight, uncertainty intervals or calibrated reception labels.
-- Expected goals and future match outcome predictions are absent by design.
-- Frames from the same match are correlated; evaluation should use held-out matches and analysts' labels, not random frame-level splitting.
-- Small historical sample cannot justify universal generalization to live professional teams.
+## Provider ingestion and observation quality
 
-## Planned scientific evaluation
-1. Check geometric invariance under controlled transformations and regression fixtures.
-2. Annotate independent possession episodes with pass targets, receivers and access events.
-3. Optimize arrival-time params on training matches only; test calibration on held-out matches.
-4. Compare against simple baselines (nearest player / inverse distance).
-5. Have blinded football analysts judge recommendations and log disagreements.
-6. Release model cards with precision, coverage, sample count, error distributions and dated snapshots.
+- Schema includes match, provider, period, relative seconds, frame ID, side, player ID, x/y metre coordinates, is_detected.
+- A value of \`False\` under \`is_detected\` means broadcast extrapolation rather than actual vision detection. Missing values are not treated as observed.
+- Warm-up frames with \`period=None\` are dropped rather than misassigned.
+- Positions outside field bounds with 1 m tolerance are excluded from spatial model rather than clamped to touchline.
+- First differences are used for velocity and are ignored at long temporal gaps; later smoothing/calibration is a research milestone.
+- Models can refuse a frame with fewer than 7 positioned players per team.
+
+## Spatial access approximation
+
+For each of the grid locations, compute minimum arrival time of each team, using:
+- current position and measured velocity component projected along route;
+- fixed reaction time; bounded acceleration up to a speed ceiling;
+- nearest-team arrival time gap transformed with a sigmoid.
+
+The result is a **relative access index**, not an empirically calibrated probability. Overlapping uncertainty and incomplete broadcast coverage can invalidate the ranking. A strict observed-only option is available in plots.
+
+## Passing lanes
+
+Two diagnostic algorithms:
+1. Static geometric interception corridors (fast baseline).
+2. Ball trajectory at a fixed hypothesized speed versus defender time of arrival to sampled pass segments.
+
+These are **not** pass-completion predictions; they omit keeper positioning, tackle reach, acceleration uncertainty, ball height and player decision-making.
+
+## Evidence and tactical recommendations
+
+- Frames from the same possession are highly correlated; therefore evidence is sampled at separated time windows (default 12 seconds) and thresholded by geometric risk proxy.
+- At least 4 separated windows are needed before emitting a hypothesis; 4 windows **do not establish statistical significance**.
+- A small playbook maps spatial exposure zones to conditional candidate actions. Rankings are relative: intensity, support and risk aversion, not probability of scoring or success.
+- Recommendations are attached to frames, periods and timestamps. Empty evidence = empty recommendations; refusal is a valid result.
+- Advanced dashboard can shift one player to compare access maps. This is a sensitivity study, **not a simulated opponent response**.
+
+## Optional match-result forecasting
+
+Completely separate from spatial analysis. Inputs: a **user supplied** historical match results CSV. The model:
+- fits average home/away goal rates strictly before match \`as_of\`;
+- smooths each team's attack/defence samples toward league base rates;
+- produces Poisson score distribution, normalized 1X2 probabilities;
+- reports temporal walk-forward multiclass Brier, not random frame-level cross validation.
+
+Missing recent injury, lineups, transfers, xG and tracking mean predictions can be badly misspecified. No live results feed or forecast calibration is asserted.
+
+## Validation gates and future work
+
+1. **Software:** Pytest regression tests for pitch bounds, conservation of access indices, symmetry, cross-period event alignment, no future leakage, provenance/CSV guards and no unsupported recommendations.
+2. **Real provider smoke:** source dataset LFS/HTTP integration checks in GitHub Actions; do not claim full-game performance from a 60-frame smoke.
+3. **Scientific:** manually labelled independent possessions from multiple games; calibrate arrival times and risk; compare held-out match performance against inverse-distance baseline; publish error bars.
+4. **Tactical:** review selected video episodes blindly with two analysts, publish inter-rater agreement and false positives, inspect confounding.
+5. **Data:** only compare teams with sufficient current *licensed* tracking; historical small public data is not a substitute for every future fixture.
+
+## Security and reproducibility
+
+- Git ignores downloaded match data and outputs.
+- API only reads local prepared datasets by sanitized name.
+- Browser view loads JSON locally (no upload to server); no private match data committed by default.
+- User remains responsible for provider license and attribution. Code MIT license does not relicense external data.
