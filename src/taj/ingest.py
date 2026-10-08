@@ -143,9 +143,15 @@ def load_skillcorner_local(match_id: str, root: str | Path, limit: int | None=10
                 if isinstance(group,dict):group=group.get("name") or group.get("id")
                 team={"home":"Home","away":"Away"}.get(str(group).lower(), players_map.get(pid,"Unknown"))
                 if team not in ("Home","Away"):continue
+                px,py=float(p["x"]),float(p["y"])
+                # Broadcast extrapolation can place players outside the playing field.
+                # Exclude these from pitch-control input instead of silently clamping
+                # them onto a boundary and fabricating tactical pressure.
+                if not np.isfinite(px) or not np.isfinite(py):continue
+                if abs(px)>LENGTH/2+1 or abs(py)>WIDTH/2+1:continue
                 rows.append(dict(match_id=match_id,provider="skillcorner",period=period,t_s=sec,
                     frame_id=fid, team=team, player_id=pid,
-                    x=float(p["x"]),y=float(p["y"]),
+                    x=px,y=py,
                     is_detected=p.get("is_detected")))
             ball=frame.get("ball_data") or {}
             if ball.get("x") is not None and ball.get("y") is not None:
