@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TAJ · Real Tracking Viewer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap');
+:root{--bg:#06101c;--panel:#102639;--border:#2b5264;--fg:#f0f9ff;--sub:#abc4d1;--accent:#2be2b4}
+*{box-sizing:border-box}body{font-family:Vazirmatn,Tahoma,Arial;background:radial-gradient(circle at 80% 0%,#123a44,transparent 40%),var(--bg);color:var(--fg);margin:0}
+a{color:var(--accent)}header{padding:14px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+header b{color:var(--accent);font-size:22px}main{max-width:1510px;padding:24px;margin:auto}
+h1{font-size:clamp(28px,4vw,44px);margin:4px 0}h2{font-size:19px}.muted{color:var(--sub);font-size:13px;line-height:1.95}
+.top{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}.tag{border:1px solid #39716b;color:#57e8c9;font-size:12px;padding:4px 12px;border-radius:18px}
+.grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:17px}
+.panel{border:1px solid var(--border);border-radius:19px;background:linear-gradient(145deg,#112639,#0a1d2d);padding:17px;margin:15px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stats>.panel{margin:0}
+.stat{font-size:24px;font-weight:800;direction:ltr;text-align:right}
+#pitch{display:block;width:100%;height:auto;border-radius:13px;border:1px solid #4b7366;background:#08382d}
+input,button,select{font:inherit}input[type=file]{max-width:100%;background:#102e3c;color:#dfede9;padding:10px;border-radius:12px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+label{color:#b6d3d3;font-size:12px;margin:10px}
+.item{padding:12px;border:1px solid #315d6c;background:#0c2532;border-radius:12px;margin:10px 0}
+.item strong{display:block}.item p{color:#bdd2da;font-size:12px}.risk{color:#f6cc85!important}
+button{background:#14504c;color:#e5fff7;border:1px solid #508f7c;border-radius:10px;padding:7px 12px;cursor:pointer;margin-top:5px}
+select{background:#0b2c39;color:#effff8;border:1px solid #527a79;padding:7px;border-radius:9px;max-width:100%}
+.foot{font-size:11px;color:#9abcc2;line-height:1.9}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}@media(max-width:620px){main{padding:12px}.stats{grid-template-columns:1fr 1fr}header{padding:12px}}
+</style></head><body>
+<header><b>TAJ · MATCH INTELLIGENCE</b><span><a href="./index.html">Visual Lab</a> · <a target="_blank" rel="noopener" href="https://github.com/prestigegitserp/Taj_soccer_recommender">GitHub ↗</a></span></header>
+<main><div class="top"><div><span class="tag">INTERACTIVE · REAL DATA BOUND</span><h1>بازپخش نقشه‌های تاکتیکی و شواهد</h1><p class="muted">خروجی <code>taj viewer-export</code> را بارگذاری کن؛ مختصات بازیکنان، توپ و Heatmap از همان فایل بازسازی می‌شوند.</p></div>
+<input id="upload" type="file" accept=".json,application/json" aria-label="Load exported tracking bundle"></div>
+<section class="panel"><strong id="status">در انتظار فایل viewer.json</strong><p class="muted" id="notice">داده فقط در مرورگر خوانده می‌شود و آپلود به سرور ندارد. هیچ صحنه ساختگی به‌عنوان بازی واقعی نمایش داده نمی‌شود.</p></section>
+<div class="stats"><div class="panel"><small>Provider</small><div class="stat" id="provider">—</div></div>
+<div class="panel"><small>Frames</small><div class="stat" id="framecount">0</div></div><div class="panel"><small>Findings</small><div class="stat" id="findingcount">0</div></div></div>
+<div class="grid">
+<section><div class="panel"><h2>🎞 Spatial Match Explorer <span class="tag" id="source">NO DATA</span></h2>
+<canvas id="pitch" width="1050" height="680" aria-label="Pitch with actual source data positions"></canvas>
+<div><span class="tag" id="time">—</span><label><input type="checkbox" id="heat" checked> Heatmap</label><label><input type="checkbox" id="obs">Observed only</label></div>
+<input id="timeline" type="range" value="0" min="0" max="0" disabled><p class="foot">رنگ سبز: دسترسی نسبی میزبان | آبی: میهمان. این شاخص احتمال برد، گل یا موفقیت پاس نیست.</p></div>
+<div class="panel" id="evidence"><h2>📌 Evidence Navigator</h2><p class="muted">صحنه‌های مستند اینجا ظاهر می‌شوند.</p></div></section>
+<aside><div class="panel"><h2>✦ Recommendations</h2><p class="muted">هر پیشنهاد باید شواهد و ریسک قابل بازبینی داشته باشد.</p><div id="cards"></div></div>
+<div class="panel"><h2>⚠ Model Limitations</h2><div id="warnings" class="muted">در انتظار مدل</div></div></aside></div>
+</main>
+<script>
+(function(){
+"use strict";
+const ids=["upload","status","notice","provider","framecount","findingcount","source","pitch","time","heat","obs","timeline","evidence","cards","warnings"];
+const el={};ids.forEach(function(id){el[id]=document.getElementById(id)});
+const context=el.pitch.getContext("2d"),W=el.pitch.width,H=el.pitch.height;let data=null;
+function text(parent,value,tag,css){let node=document.createElement(tag||"p");node.textContent=String(value===undefined?"":value);if(css)node.className=css;parent.appendChild(node);return node}
+function xy(x,y){return [(Number(x)+52.5)/105*W,(34-Number(y))/68*H]}
+function draw(){
+ const g=context;g.fillStyle="#0c382f";g.fillRect(0,0,W,H);
+ const f=data&&data.frames[Number(el.timeline.value)];
+ if(f&&f.heatmap&&el.heat.checked){
+   const map=f.heatmap,w=W/Math.max(1,map.x.length-1),h=H/Math.max(1,map.y.length-1);
+   map.access.forEach(function(row,i){row.forEach(function(v,j){
+     if(v===null)return;const p=Math.max(0,Math.min(1,Number(v)));
+     g.fillStyle=p>.5?"rgba(25,231,176,"+(Math.abs(p-.5)*1.1)+")":"rgba(115,145,255,"+(Math.abs(p-.5)*1.2)+")";
+     const point=xy(map.x[j],map.y[i]);g.fillRect(point[0]-w/2,point[1]-h/2,w+1,h+1)
+   })});
+ }
+ g.strokeStyle="#d4eeddc9";g.lineWidth=2;g.strokeRect(10,10,W-20,H-20);g.beginPath();g.moveTo(W/2,10);g.lineTo(W/2,H-10);g.stroke();
+ g.beginPath();g.arc(W/2,H/2,9.15/105*W,0,2*Math.PI);g.stroke();
+ [-1,1].forEach(function(side){const x=side<0?10:W-10-16.5/105*W;
+   g.strokeRect(x,H/2-20.16/68*H,16.5/105*W,40.32/68*H);
+   const x2=side<0?10:W-10-5.5/105*W;g.strokeRect(x2,H/2-9.16/68*H,5.5/105*W,18.32/68*H)});
+ if(!f){g.font="25px Arial";g.fillStyle="#d8f8eb";g.textAlign="center";g.fillText("Choose a viewer.json export",W/2,H/2);return}
+ (f.players||[]).forEach(function(p){
+   if(el.obs.checked&&p.observed===false)return;
+   const point=xy(p.x,p.y);
+   g.beginPath();g.arc(point[0],point[1],13,0,2*Math.PI);g.fillStyle=p.team==="Home"?"#25e8b6":"#93a9ff";g.fill();
+   g.lineWidth=p.observed===false?3:1.2;g.strokeStyle=p.observed===false?"#eec274":"white";g.stroke();
+   g.fillStyle="#03121d";g.textAlign="center";g.font="11px Arial";g.fillText(String(p.id).slice(-3),point[0],point[1]+4)
+ });
+ if(f.ball){let point=xy(f.ball.x,f.ball.y);g.beginPath();g.arc(point[0],point[1],9,0,Math.PI*2);g.fillStyle="#ffcf7c";g.fill();g.strokeStyle="white";g.stroke()}
+ el.time.textContent="Period "+f.period+" · "+Number(f.t_s).toFixed(1)+" s · Frame "+f.frame_id+" · "+f.players.length+" positions";
+}
+function jump(r){let n=data.frames.findIndex(function(f){return f.period===Number(r.period)&&String(f.frame_id)===String(r.frame_id)});
+ if(n<0){el.status.textContent="این صحنه در نمونه فشرده نیست. نمونه‌های بیشتری صادر کن.";return}
+ el.timeline.value=String(n);draw();el.pitch.scrollIntoView({behavior:"smooth",block:"center"})}
+function render(){
+ el.status.textContent="Match "+data.match_id+" · "+(data.model||"experimental model");
+ el.notice.textContent=data.notice||"Uncalibrated spatial model";
+ el.provider.textContent=data.provider;el.framecount.textContent=data.frames.length;el.findingcount.textContent=data.findings.length;
+ el.source.textContent=data.synthetic?"SYNTHETIC / DEMO":"HISTORICAL / OPEN DATA";
+ el.timeline.disabled=!data.frames.length;el.timeline.max=String(Math.max(0,data.frames.length-1));el.timeline.value="0";
+ el.cards.replaceChildren();el.evidence.replaceChildren();el.warnings.replaceChildren();
+ text(el.evidence,"📌 Evidence Navigator","h2");
+ data.recommendations.forEach(function(r,i){
+   let c=text(el.cards,"","div","item");text(c,(i+1)+". "+(r.title_fa||r.title),"strong");
+   text(c,r.reason_fa||"","p");text(c,"ریسک: "+(r.risk_fa||"—"),"p","risk");
+   text(c,"Relative priority "+r.priority+"/100 · "+r.sample_windows+" windows","p")
+ });
+ if(!data.recommendations.length)text(el.cards,"شواهد کافی برای پیشنهاد وجود ندارد.","p","muted");
+ data.findings.forEach(function(f,i){
+  let c=text(el.evidence,"","div","item");text(c,(i+1)+". "+f.statement_fa,"strong");
+  text(c,f.n_independent_windows+" evidence windows · zone "+f.zone,"p");
+  if(f.evidence&&f.evidence.length){
+   let select=document.createElement("select");
+   f.evidence.forEach(function(r,k){let option=document.createElement("option");option.value=String(k);option.textContent="P"+r.period+" · "+r.t_s+"s · Frame "+r.frame_id;select.append(option)});
+   let button=document.createElement("button");button.textContent="نمایش صحنه";button.addEventListener("click",function(){jump(f.evidence[Number(select.value)])});
+   c.append(select,button)
+  }
+ });
+ if(!data.findings.length)text(el.evidence,"هیچ فرضیه‌ای از آستانه شواهد عبور نکرده است.","p","muted");
+ (data.warnings||[]).forEach(function(w){text(el.warnings,"⚠ "+w,"p","risk")});
+ text(el.warnings,"No calibrated outcome probabilities · "+data.model,"p","muted");
+ draw()
+}
+el.timeline.addEventListener("input",draw);el.heat.addEventListener("change",draw);el.obs.addEventListener("change",draw);
+el.upload.addEventListener("change",async function(){
+ let file=el.upload.files[0];if(!file)return;
+ try{
+  if(file.size>24*1024*1024)throw Error("File is larger than 24 MB.");
+  let p=JSON.parse(await file.text());
+  if(p.format!=="taj-viewer-v1"||!Array.isArray(p.frames)||!Array.isArray(p.findings)||!Array.isArray(p.recommendations))throw Error("Use taj viewer-export to generate a supported file.");
+  data=p;render();
+ }catch(err){el.status.textContent="خطا: "+err.message}
+});
+draw()
+})();
+</script></body></html>
