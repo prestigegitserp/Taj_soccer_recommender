@@ -65,7 +65,21 @@ def main(argv=None):
     v.add_argument("--max-frames",type=int,default=110);v.add_argument("--grid",type=float,default=6.)
     h=sub.add_parser("html-export",help="Export standalone interactive Plotly HTML")
     add_analysis_options(h);h.add_argument("--out",default=None)
+    pre=sub.add_parser("predict",help="Pre-match Poisson baseline from a historical results CSV")
+    pre.add_argument("--results",required=True)
+    pre.add_argument("--home",required=True)
+    pre.add_argument("--away",required=True)
+    pre.add_argument("--as-of",required=True)
+    eva=sub.add_parser("evaluate",help="Chronological multiclass Brier benchmark")
+    eva.add_argument("--results",required=True)
+    eva.add_argument("--min-history",type=int,default=50)
     args=p.parse_args(argv)
+    if args.cmd in ("predict","evaluate"):
+        from .prediction import predict,walk_forward_brier
+        historical=pd.read_csv(args.results)
+        result=predict(historical,args.home,args.away,args.as_of) if args.cmd=="predict" else walk_forward_brier(historical,min_games=args.min_history)
+        print(json.dumps(result,ensure_ascii=False,indent=2))
+        return
     if args.cmd=="demo":
         _,_,r=create_demo(args.out)
         print(json.dumps({"path":args.out,"synthetic":True,"findings":len(r["findings"])},ensure_ascii=False))
