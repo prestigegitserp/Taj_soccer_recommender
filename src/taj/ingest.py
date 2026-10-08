@@ -116,20 +116,26 @@ def load_skillcorner_local(match_id: str, root: str | Path, limit: int | None=10
                     if p.get(key) is not None:
                         players_map[str(p[key])] = side
     rows,balls=[],[]
+    accepted_frames=0
     with trfile.open(encoding="utf-8") as f:
         for ix,line in enumerate(f):
             if ix % max(1,stride): continue
-            if limit is not None and ix//max(1,stride)>=limit: break
             frame=json.loads(line)
+            # SkillCorner includes warmup/dead-time frames with period=None.
+            # Never invent period 1 for those observations.
+            raw_period=frame.get("period")
+            if raw_period is None or not frame.get("player_data"):continue
+            if limit is not None and accepted_frames>=limit:break
             fid=str(frame.get("frame",ix))
-            period=int(frame.get("period",1))
-            stamp=frame.get("timestamp",ix/10)
+            period=int(raw_period)
+            stamp=frame.get("timestamp")
             if isinstance(stamp,(int,float)):
                 sec=float(stamp)
             elif isinstance(stamp,str):
                 sec=_coerce_seconds(stamp)
             else:
                 sec=float(ix/10)
+            accepted_frames+=1
             for p in frame.get("player_data",[]) or []:
                 if p.get("x") is None or p.get("y") is None:continue
                 pid=str(p.get("player_id"))
