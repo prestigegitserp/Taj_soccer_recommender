@@ -1,6 +1,11 @@
-name: IDSSE network integration (manual)
+name: IDSSE real-data network smoke
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "src/taj/ingest.py"
+      - "scripts/integration_smoke.py"
+      - ".github/workflows/integration.yml"
 jobs:
   idsse:
     runs-on: ubuntu-latest
@@ -10,5 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -e .
-      - run: python scripts/integration_smoke.py
+      - name: Install minimal dependencies
+        run: pip install -e .
+      - name: Read 60 real IDSSE frames and validate coordinates
+        run: python scripts/integration_smoke.py
