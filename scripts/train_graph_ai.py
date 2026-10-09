@@ -35,9 +35,9 @@ def load_history():
                 all_games[g["league"]+":"+g["id"]]=g
     return sorted(all_games.values(),key=lambda g:(g["kickoff"],g["id"]))
 
-def make_examples(games):
+def make_examples(games, with_matches=False):
     history={league:[] for league in LEAGUES}
-    data=[];labels=[];dates=[]
+    data=[];labels=[];dates=[];match_metadata=[]
     for stamp,group in groupby(games,key=lambda g:g["kickoff"]):
         simultaneous=list(group)
         for g in simultaneous:
@@ -51,9 +51,11 @@ def make_examples(games):
                 h,a=g["home"]["score"],g["away"]["score"]
                 data.append(row);labels.append(0 if h>a else 1 if h==a else 2)
                 dates.append(stamp)
+                match_metadata.append(g)
         for g in simultaneous:history[g["league"]].append(g)
     if len(data)<400:raise RuntimeError(f"Not enough dated graph examples: {len(data)}")
-    return np.array(data,dtype=np.float32),np.array(labels,dtype=np.int32),dates
+    result=(np.array(data,dtype=np.float32),np.array(labels,dtype=np.int32),dates)
+    return (*result,match_metadata) if with_matches else result
 
 def network(batch_size=None):
     model=tf.keras.Sequential([
