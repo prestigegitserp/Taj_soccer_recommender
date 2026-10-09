@@ -41,6 +41,26 @@ async function check(page,viewport){
   const probs=raw.map(s=>Number(s.replace("٪","").trim()));
   if(probs.some(x=>!Number.isFinite(x))||Math.abs(probs.reduce((a,b)=>a+b,0)-100)>.25)
     throw Error("Neural probabilities invalid: "+JSON.stringify(probs));
+  await page.locator("#knowledgeGraph svg").first().waitFor({timeout:40000});
+  const rosterPlayers=await page.locator(".squadPlayer").count();
+  if(rosterPlayers<20)throw Error("Real squad roster comparison missing: "+rosterPlayers);
+  await page.waitForFunction(()=>{
+    const rows=document.querySelectorAll("#graphModelResults .graphForecastRow").length;
+    const status=document.querySelector("#graphStatus")?.textContent||"";
+    return rows===6||status.includes("مدل گرافی در دسترس نیست");
+  },null,{timeout:120000});
+  const graphRowCount=await page.locator("#graphModelResults .graphForecastRow").count();
+  const graphStatus=await page.locator("#graphStatus").textContent();
+  console.log("GRAPH AI status:",graphStatus,"forecast rows:",graphRowCount,"squad player count:",rosterPlayers);
+  if(graphRowCount!==6)throw Error("Actual second LiteRT graph model failed: "+graphStatus+" "+messages.join("\n"));
+  const graphValues=await page.locator("#graphModelResults .graphForecastRow strong").allTextContents();
+  const triplets=[graphValues.slice(0,3),graphValues.slice(3,6)];
+  for(const values of triplets){
+    const p=values.map(x=>Number(x.replace("٪","").trim()));
+    if(p.some(x=>!Number.isFinite(x))||Math.abs(p.reduce((a,b)=>a+b,0)-100)>.25)
+      throw Error("Graph AI probabilities invalid: "+JSON.stringify(p));
+  }
+  console.log("GRAPH AI local",graphValues);
   await page.screenshot({path:"test-results/taj-"+viewport+".png",fullPage:true});
   console.log("Verified browser LiteRT CPU forecast:",probs,"sum:",probs.reduce((a,b)=>a+b,0));
 
@@ -61,6 +81,14 @@ async function check(page,viewport){
        probability.some(x=>!Number.isFinite(x))) {
       throw Error("Offline LiteRT prediction invalid for match "+i+": "+JSON.stringify(probability));
     }
+    await page.waitForFunction(()=>{
+      return document.querySelectorAll("#graphModelResults .graphForecastRow strong").length===6;
+    },null,{timeout:35000});
+    const rawGraph=await page.locator("#graphModelResults .graphForecastRow strong").allTextContents();
+    const gp=rawGraph.slice(0,3).map(x=>Number(x.replace("٪","").trim()));
+    if(gp.some(x=>!Number.isFinite(x))||Math.abs(gp.reduce((a,b)=>a+b,0)-100)>.25)
+      throw Error("Offline Graph AI invalid for match "+i+": "+JSON.stringify(gp));
+    console.log("OFFLINE GRAPH match",i+1,"LiteRT 42-feature forecast",gp);
     console.log("OFFLINE match",i+1,"LiteRT forecast",probability);
   }
   await page.context().setOffline(false);
