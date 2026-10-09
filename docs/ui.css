@@ -91,3 +91,48 @@ footer{border-top:1px solid #263f4e;margin-top:60px;padding:26px 0 50px;display:
 .neuralMetrics{display:flex;flex-direction:column;gap:5px;margin-top:10px;border-top:1px solid #3b625c;padding-top:11px;color:#9ec3b5;font-size:10px;line-height:1.8}
 .neuralCaution{color:#f3c899}.neuralFineprint{font-size:10px;color:#88ada2;line-height:1.8}
 .neuralRetry{margin-top:11px;background:#194b3e;border:1px solid #4b9d81;color:#c7ffdf;font:700 11px Vazirmatn;border-radius:9px;padding:7px 11px}
+
+/* Evidence-linked knowledge graph and local multi-layer graph neural AI */
+.graphExplorerPanel{border:1px solid #315767;border-radius:18px;background:linear-gradient(155deg,#132d3d,#10222d);padding:19px 17px;margin:0 0 14px}
+.graphPanelTitle,.graphNeuralHeader{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.graphEyebrow{font:700 10px Space Grotesk,sans-serif;color:#67eec6;letter-spacing:1.2px;direction:ltr;display:block;text-align:right}
+.graphPanelTitle h3,.graphNeuralHeader h3{font-size:17px;margin:6px 0 2px}
+.graphTag{font-size:10px;color:#c3eade;border:1px solid #487a74;border-radius:15px;padding:5px 10px;white-space:nowrap}
+.graphIntro{font-size:11px;color:#a7c6cd;line-height:2;margin:12px 0}
+.graphContent{min-width:0}.graphCanvas{border-radius:12px;overflow:hidden;border:1px solid #31555e;background:radial-gradient(circle at 50% 50%,#183844 0%,#091e2b 80%);padding:8px}
+.graphCanvas svg{display:block;width:100%;max-height:360px;height:auto}
+.graphLegend{display:flex;flex-wrap:wrap;gap:13px;margin:11px 0;color:#b2ccd1;font-size:10px}
+.graphLegend>span{display:flex;align-items:center;gap:6px}.graphLegend i{width:8px;height:8px;border-radius:50%;display:block}
+.graphFacts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}
+.graphFacts>div{background:#152f3a;border:1px solid #335663;border-radius:12px;text-align:center;padding:12px 6px}
+.graphFacts small{display:block;color:#95b2c2;font-size:10px;line-height:1.7}
+.graphFacts strong{display:block;font:700 23px Space Grotesk,Vazirmatn;margin-top:5px;color:#7ef6cc}
+.graphCaveat{font-size:10px;line-height:2;color:#9cb5c2;margin:10px 0 0}.graphEmpty{border:1px dashed #476271;padding:22px;color:#aecdd2;border-radius:12px;font-size:12px;line-height:2}
+.squadColumns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.squadCard{background:#112734;border:1px solid #3a596a;border-radius:13px;padding:14px;min-width:0}
+.squadCard h4{margin:0 0 12px;color:#e8f9f4;font-size:13px}
+.squadStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.squadStat{background:#1a3944;border:1px solid #345765;border-radius:9px;padding:8px 9px;min-width:0}
+.squadStat strong{color:#73f0bc;font:700 18px Space Grotesk,Vazirmatn;display:block}
+.squadStat small{display:block;color:#a9c7ca;font-size:10px;margin:3px 0}
+.squadStat small.squadCoverage{font-size:9px;color:#829caa}
+.squadPlayers{border-top:1px solid #305160;margin-top:13px;padding-top:10px}
+.squadPlayers summary{color:#c4ece1;font-size:11px;font-weight:700;cursor:pointer;line-height:1.8}
+.squadGroup{border-top:1px solid #263f4b;padding-top:6px;margin-top:8px}
+.squadGroup h5{margin:6px 0;font-size:10px;color:#6be7bf}
+.squadPlayerGrid{display:grid;grid-template-columns:1fr;gap:5px;max-height:250px;overflow:auto}
+.squadPlayer{display:flex;align-items:center;gap:8px;padding:6px;background:#1b3641;border-radius:7px;font-size:10px;overflow-wrap:anywhere}
+.squadJersey{width:23px;flex:0 0 23px;text-align:center;border:1px solid #53707b;color:#9ff2d2;border-radius:5px;font:700 10px Space Grotesk}
+.graphNeuralPanel{padding:19px 20px;background:linear-gradient(145deg,#183c3a,#102635);border:1px solid #46a88c;border-radius:18px;margin-bottom:13px}
+.graphNeuralHeader h3{margin:6px 0 0;font-size:18px}
+.graphStatus{color:#8ee9c9;font-size:11px;line-height:1.9;margin:8px 0}
+.graphPredictionBox{margin-top:12px;padding:13px 11px;border:1px solid #316759;border-radius:12px;background:#0f3035}
+.graphPredictionBox.graphBlend{border-color:#62a99c;background:#174037}
+.graphPredictionBox h4{font-size:12px;margin:0 0 11px}.graphSubline{font-size:10px;color:#a6c8b8;line-height:1.9}
+.graphForecastRow{display:grid;grid-template-columns:66px minmax(0,1fr) 55px;gap:8px;align-items:center;margin:9px 0;font-size:11px}
+.graphForecastLabel{color:#c0ddda}.graphForecastTrack{height:9px;border-radius:18px;background:#28474b;overflow:hidden}
+.graphForecastFill{height:100%;border-radius:20px}.graphForecastFill.home{background:#6be6b2}.graphForecastFill.draw{background:#e7c78a}.graphForecastFill.away{background:#97b4f4}
+.graphForecastRow strong{direction:ltr;text-align:left;font:700 12px Space Grotesk,Vazirmatn}
+.graphModelEvidence{display:flex;flex-direction:column;gap:5px;font-size:10px;color:#b5d2c8;margin-top:12px;line-height:1.8}
+.graphWarning{color:#f6cf97}
+@media(max-width:470px){.squadColumns{grid-template-columns:1fr}.graphFacts strong{font-size:19px}.graphExplorerPanel{padding:14px 10px}.graphNeuralPanel{padding:14px 12px}}
