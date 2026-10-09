@@ -21,7 +21,7 @@ async function check(page,viewport){
     const status=document.getElementById("neuralStatus")?.textContent||"";
     return status.includes("پیش‌بینی با مدل")||status.includes("LiteRT اجرا نشد")
       ||status.includes("موتور AI هنوز")||status.includes("Worker مدل")||status.includes("ویژگی‌های سایت");
-  },{timeout:165000});
+  },null,{timeout:165000});
   const status=await page.locator("#neuralStatus").textContent();
   console.log("Neural status:",status);
   if(!status.includes("پیش‌بینی با مدل"))throw Error("LiteRT numerical inference did not succeed: "+status+"\n"+messages.join("\n"));
