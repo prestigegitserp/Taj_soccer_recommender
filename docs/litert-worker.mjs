@@ -24,6 +24,10 @@ async function initialize(){
     throw new Error("مدل منتشرشده با نسخه سایت سازگار نیست.");
   send("loading",{message:"در حال دانلود موتور LiteRT.js و وزن‌های مدل واقعی..."});
   // The import and WASM download are lazy and only begin after model card exists.
+  // Emscripten resolves the WASM file against worker.location by default,
+  // NOT the imported glue script! The URL must be redirected explicitly.
+  self.Module=self.Module||{};
+  self.Module.locateFile=name=>new URL("./vendor/litert/wasm/"+name,self.location.href).href;
   runtime=await import("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm");
   await runtime.loadLiteRt(new URL("./vendor/litert/wasm/",self.location.href).href);
   model=await runtime.loadAndCompile(new URL("./models/football_1x2.tflite",self.location.href).href,
