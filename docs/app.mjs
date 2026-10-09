@@ -103,6 +103,10 @@ function teamFace(team){
   add(face,"span","teamName",team.short||team.name);return face;
 }
 const state={feed:null,all:[],filter:"all",selected:null,scenario:"base",polling:false};
+export function activeGameEvidence(){
+  const game=state.all.find(g=>g.league+":"+g.id===state.selected);
+  return game?{game,results:state.all,feedUpdated:state.feed?.generated_at||null}:null;
+}
 function status(text,warn=false){
   root("statusLabel").textContent=text;
   root("statusPoint").className=warn?"statusPoint warn":"statusPoint";
