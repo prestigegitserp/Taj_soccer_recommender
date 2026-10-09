@@ -2,7 +2,7 @@
   "schema": "taj-graph-ai-v1",
   "architecture": "graph-conditioned-MLP-42-96-64-32-3",
   "graph_topology": "team nodes, timestamped played-vs edges, opponent strength + 2-hop aggregation; no learned GNN message pass",
-  "created_at": "2026-10-09T23:37:58.545512+00:00",
+  "created_at": "2026-10-09T23:59:40.252882+00:00",
   "input_features": [
     "league_home_goals",
     "league_away_goals",
