@@ -75,3 +75,19 @@ footer{border-top:1px solid #263f4e;margin-top:60px;padding:26px 0 50px;display:
 .localAiPanel #aiAsk{margin-top:9px}
 .aiAnswer{white-space:pre-wrap;overflow-wrap:anywhere;color:#d3ebea;font-size:12px;line-height:2.3;margin:13px 0}
 .aiFootnote{color:#9bbeb1;font-size:10px;line-height:1.9;display:block}
+
+/* CPU-first LiteRT forecast: ML can load lazily, no server inference. */
+.neuralPanel{margin:0 0 16px;border:1px solid #4a917d;background:linear-gradient(125deg,#113b32,#142c39 75%);border-radius:18px;padding:19px 21px;box-shadow:0 10px 30px #04171144}
+.neuralHeading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.neuralKicker{display:block;color:#6bf1c0;letter-spacing:1.4px;font:700 10px Space Grotesk,sans-serif}
+.neuralHeading h3{font-size:18px;margin:5px 0 0}.neuralBadge{border:1px solid #4b957e;color:#9affcf;padding:5px 10px;border-radius:30px;font:700 10px Space Grotesk,sans-serif}
+.neuralDescription{color:#b5d5ca;font-size:11px;line-height:2;margin:11px 0}
+.neuralStatus{font-size:11px;color:#aad6c5;line-height:1.9;min-height:20px}
+.neuralResults{display:flex;flex-direction:column;gap:12px;padding:8px 0}
+.neuralProbability{display:grid;grid-template-columns:72px minmax(0,1fr) 54px;align-items:center;gap:12px;font-size:11px}
+.neuralTrack{height:10px;border-radius:15px;background:#234239;overflow:hidden}
+.neuralFill{height:100%;border-radius:15px}.neuralFill.mint{background:linear-gradient(90deg,#2a916e,#76f5af)}.neuralFill.gold{background:linear-gradient(90deg,#a68153,#f3d59b)}.neuralFill.blue{background:linear-gradient(90deg,#536d9f,#a9bafa)}
+.neuralProbability strong{font:700 12px Space Grotesk,Vazirmatn,sans-serif;direction:ltr;text-align:left}
+.neuralMetrics{display:flex;flex-direction:column;gap:5px;margin-top:10px;border-top:1px solid #3b625c;padding-top:11px;color:#9ec3b5;font-size:10px;line-height:1.8}
+.neuralCaution{color:#f3c899}.neuralFineprint{font-size:10px;color:#88ada2;line-height:1.8}
+.neuralRetry{margin-top:11px;background:#194b3e;border:1px solid #4b9d81;color:#c7ffdf;font:700 11px Vazirmatn;border-radius:9px;padding:7px 11px}
