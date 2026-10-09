@@ -25,7 +25,7 @@ async function initialize(){
   send("loading",{message:"در حال دانلود موتور LiteRT.js و وزن‌های مدل واقعی..."});
   // The import and WASM download are lazy and only begin after model card exists.
   runtime=await import("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm");
-  await runtime.loadLiteRt("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/wasm/");
+  await runtime.loadLiteRt(new URL("./vendor/litert/wasm/",self.location.href).href);
   model=await runtime.loadAndCompile(new URL("./models/football_1x2.tflite",self.location.href).href,
      {accelerator:"wasm"});
   card=info;
