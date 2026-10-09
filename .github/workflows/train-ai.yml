@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "scripts/train_litert_soccer.py"
+      - "scripts/graph_features.py"
+      - "scripts/train_graph_ai.py"
       - ".github/workflows/train-ai.yml"
   schedule:
     - cron: "17 3 * * 0"
@@ -36,11 +38,15 @@ jobs:
         env:
           TF_CPP_MIN_LOG_LEVEL: "2"
           OMP_NUM_THREADS: "2"
-        run: python scripts/train_litert_soccer.py
+        run: |
+          python scripts/train_litert_soccer.py
+          python scripts/train_graph_ai.py
       - name: Validate model artifact and transparency card
         run: |
           test -s docs/models/football_1x2.tflite
+          test -s docs/models/graph_1x2.tflite
           python -c "import json; x=json.load(open('docs/models/model-card.json')); assert len(x['input_features'])==20; assert x['train_n']>200; assert x['holdout']['n']>50"
+          python -c "import json; x=json.load(open('docs/models/graph-card.json')); assert len(x['input_features'])==42; assert x['train_n']>200; assert x['test_n']>55"
       - name: Commit new weights, metrics and historical archive
         run: |
           git config user.name "github-actions[bot]"
@@ -50,7 +56,7 @@ jobs:
           # artifacts. This handles overlapping update jobs and binary weights.
           git fetch origin main
           git reset --mixed origin/main
-          git add -f training/history.json docs/models/football_1x2.tflite docs/models/model-card.json
+          git add -f training/history.json docs/models/football_1x2.tflite docs/models/model-card.json docs/models/graph_1x2.tflite docs/models/graph-card.json
           if ! git diff --cached --quiet; then
             git commit -m "model: publish validated LiteRT football weights and run browser proof"
             git push origin HEAD:main
