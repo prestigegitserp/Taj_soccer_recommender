@@ -17,6 +17,38 @@
 
 ---
 
+## 🧠 Real AI: LiteRT.js neural predictions (no Colab)
+
+TAJ now runs **a separately trained neural 1X2 model** fully inside the
+visitor's browser. It is **not** the pre-existing Poisson formula behind
+an AI label.
+
+- **Training only in GitHub Actions**: `scripts/train_litert_soccer.py`
+  retrieves up to 25 calendar months of genuine historical ESPN match results,
+  creates strictly pre-kickoff features, trains an MLP (20 → 32 → 16 → 3),
+  and converts it with TensorFlow Lite to a `.tflite` artifact.
+- **Chronological evaluation**: 70% earlier games for training, 15% validation,
+  15% later games held out; historical model metrics, calibration temperature,
+  input normalization, training counts and cutoff dates are stored in
+  [model-card.json](docs/models/model-card.json).
+- **Browser prediction**: `docs/football-features.mjs` computes the same
+  features from match history, `docs/litert-worker.mjs` downloads the model
+  *only when usable features exist*, and executes LiteRT.js with CPU/WASM
+  in a Web Worker, with output validity checks.
+- **Two independent forecasts**: the trained ML and the existing Poisson
+  baseline are both shown, with explicit source/uncertainty. Model failure
+  never removes the normal site.
+- **Optional LLM**: the larger WebLLM loads only if visitors click to enable it.
+
+**Important:** The neural network uses scoreline-level results, not player
+tracking, actual line-ups, event feeds, possession labels or xG. It is not an
+established betting system. A new runtime alone cannot make poor data accurate.
+
+[Browser model worker](docs/litert-worker.mjs) ·
+[Local features](docs/football-features.mjs) ·
+[Trainer](scripts/train_litert_soccer.py) ·
+[Weekly retrain workflow](.github/workflows/train-ai.yml).
+
 ## Research / engineering toolkit (optional; not needed to use the website)
 
 # TAJ Soccer Recommender ⚽
