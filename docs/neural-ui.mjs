@@ -98,7 +98,7 @@ async function ensureModel(){
     const metadata=await resp.json();
     if(metadata.schema!=="taj-litert-1x2-v1")throw Error("نسخه مدل ناشناخته است.");
     state.card=metadata;
-    state.worker=new Worker(new URL("./litert-worker.mjs",import.meta.url),{type:"module"});
+    state.worker=new Worker(new URL("./litert-worker.mjs",import.meta.url),{type:"classic"});
     state.worker.onmessage=({data})=>{
       if(data.type==="loading"){status(data.message);}
       if(data.type==="ready"){
