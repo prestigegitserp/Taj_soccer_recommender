@@ -3,7 +3,16 @@
  * TFLite model, executes it with LiteRT.js (CPU/WASM as most reliable default)
  * and sends back probabilities. No API inference or server model call.
  */
-import {temperatureAdjust} from "./football-features.mjs";
+// LiteRT's WASM loader uses importScripts. This script deliberately runs
+// inside a CLASSIC Worker, so avoid top-level ESM imports/import.meta.
+function temperatureAdjust(values,temp){
+  if(!Array.isArray(values)||values.length!==3)return null;
+  const t=Number(temp);
+  if(!Number.isFinite(t)||t<=0||values.some(v=>!Number.isFinite(v)||v<0))return null;
+  const q=values.map(v=>Math.pow(Math.max(v,1e-6),1/t));
+  const total=q.reduce((a,b)=>a+b,0);
+  return q.map(v=>v/total);
+}
 let runtime=null,model=null,card=null;
 const send=(type,value={})=>self.postMessage({type,...value});
 async function initialize(){
@@ -17,7 +26,7 @@ async function initialize(){
   // The import and WASM download are lazy and only begin after model card exists.
   runtime=await import("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm");
   await runtime.loadLiteRt("https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/wasm/");
-  model=await runtime.loadAndCompile(new URL("./models/football_1x2.tflite",import.meta.url).href,
+  model=await runtime.loadAndCompile(new URL("./models/football_1x2.tflite",self.location.href).href,
      {accelerator:"wasm"});
   card=info;
   send("ready",{card});
