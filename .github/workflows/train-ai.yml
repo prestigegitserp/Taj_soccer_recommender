@@ -45,9 +45,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # The fresh model output is already in the working tree. Move to
+          # current main without modifying it, then stage our three generated
+          # artifacts. This handles overlapping update jobs and binary weights.
+          git fetch origin main
+          git reset --mixed origin/main
           git add -f training/history.json docs/models/football_1x2.tflite docs/models/model-card.json
           if ! git diff --cached --quiet; then
             git commit -m "model: publish chronological historical football LiteRT model [skip ci]"
-            git pull --rebase origin main
             git push origin HEAD:main
           fi
