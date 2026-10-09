@@ -42,3 +42,26 @@ The GitHub job **only downloads normalized historical results and schedules**, n
 The free public match schedule does **not** contain 22-player continuous tracking for upcoming games. This means no authentic pitch-control heatmaps, pressing traps or proof of half-space vulnerability for those future fixtures. Those analyses require licensed or legally extracted tracking or video. The separate Tracking Viewer remains optional for historical examples.
 
 Code QA: \`node --test tests/test_browser.mjs\` (GitHub Actions handles this, not the website visitor).
+
+## Browser execution proof — 2026-10-10
+
+The numerical LiteRT inference path has now been tested in **real Chromium**,
+not merely compiled or simulated:
+
+- First inference loads the actual trained `docs/models/football_1x2.tflite`
+  model through version-pinned LiteRT.js and same-origin WebAssembly files.
+- The browser calculates 1X2 probabilities for the initial scheduled match.
+- **Network access is then disabled** in the test browser. Selecting the other
+  four real future fixtures still produces numerical forecasts from the local
+  Worker, proving no inference server is required after initial download.
+- Both desktop (1440 × 1000) and mobile (390 × 844) configurations passed;
+  each probability triplet passed the normalization check.
+- This verifies browser-side inference **in CI's Chromium**, not performance
+  across every user device, network, Firefox, Safari, or WebGPU.
+
+[Browser execution test and captured screenshots](https://github.com/prestigegitserp/Taj_soccer_recommender/actions/runs/38004332490)
+
+The model's holdout Brier score was **0.63411** versus the same-sample Poisson
+baseline **0.63590**. The neural model was **worse in Log Loss and top-outcome
+accuracy** than that Poisson baseline. Do not interpret this modest experimental
+model as an established best-in-class soccer prediction system.
