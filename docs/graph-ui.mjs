@@ -177,6 +177,61 @@ function drawGraph(parent,graph){
   add(away,"strong","",ratings.away.toFixed(0));
   add(parent,"p","graphCaveat","رتبه‌ها Elo محاسبه‌شده از ۸۰ مسابقه ثبت‌شده این لیگ هستند؛ امتیاز رسمی تیم یا رنکینگ جهانی نیستند.");
 }
+function drawSquadGraph(parent,match,knowledge){
+  const home=knowledge?.teams?.[match.home.id]?.roster||[];
+  const away=knowledge?.teams?.[match.away.id]?.roster||[];
+  if(!home.length&&!away.length){
+    add(parent,"p","graphEmpty","هنوز فهرست معتبر بازیکنان دریافت نشده است.");
+    return;
+  }
+  const wrap=add(parent,"div","graphCanvas squadGraphCanvas");
+  const svg=svgElement("svg",{viewBox:"0 0 820 480",role:"img",
+    "aria-label":"گراف واقعی ارتباط باشگاه‌ها با فهرست بازیکنان ثبت‌شده در چهار گروه پستی"});
+  const roles=[["G","دروازه‌بان"],["D","مدافع"],["M","هافبک"],["F","مهاجم"]];
+  function link(x1,y1,x2,y2,color){
+    svg.appendChild(svgElement("path",{d:"M "+x1+" "+y1+" L "+x2+" "+y2,
+      stroke:color,"stroke-width":1.3,opacity:.55,fill:"none"}));
+  }
+  function text(x,y,str,size=10,color="#eef9fa",weight=600){
+    const node=svgElement("text",{x,y,"text-anchor":"middle",fill:color,
+      "font-family":"Arial,sans-serif","font-size":size,"font-weight":weight});
+    node.textContent=String(str).slice(0,24);svg.appendChild(node);
+  }
+  function club(team,players,x,color,right){
+    const title=team.short||team.name;
+    const node=svgElement("rect",{x:x-75,y:14,width:150,height:52,rx:18,
+      fill:"#183d44",stroke:color,"stroke-width":2});
+    svg.appendChild(node);text(x,45,title.slice(0,18),14,color,700);
+    roles.forEach(([pos,label],i)=>{
+      const filtered=players.filter(p=>p.position===pos);
+      const y=120+i*106;
+      link(x,66,x,y-24,color);
+      svg.appendChild(svgElement("rect",{x:x-69,y:y-24,width:138,height:47,
+        rx:12,fill:"#183c49",stroke:color,opacity:.9}));
+      text(x,y-4,label+" · "+filtered.length,11,"#d8f5f0",700);
+      text(x,y+12,"عضو فهرست",9,"#94bbc0",500);
+      // Two actual roster members shown per role. Full named squad remains
+      // available below the graph; these are NOT predicted starters.
+      filtered.slice(0,2).forEach((person,index)=>{
+        const px=right?x-203:x+203,py=y-14+index*31;
+        link(right?x-69:x+69,y+(index===0?-5:5),right?px+55:px-55,py,color);
+        const rect=svgElement("rect",{x:px-79,y:py-15,width:158,height:25,
+          rx:8,fill:"#142e3c",stroke:"#466775","stroke-width":1});
+        svg.appendChild(rect);
+        const abbreviated=person.name.length>21?person.name.slice(0,19)+"…":person.name;
+        text(px,py+1,abbreviated,9,"#e0f0f2",500);
+        const tip=svgElement("title");
+        tip.textContent=person.name+" · "+label+" · شماره "+(person.jersey||"نامشخص");
+        rect.appendChild(tip);
+      });
+    });
+  }
+  club(match.home,home,180,"#76e9bc",false);
+  club(match.away,away,640,"#9ebefa",true);
+  wrap.appendChild(svg);
+  add(parent,"p","graphCaveat","پیوندها «بازیکن عضو فهرست باشگاه» هستند؛ مدل هیچ ترکیب اصلی یا دقایق بازی را پیش‌بینی نکرده است. نام‌های نمایش‌داده‌شده نمونه‌ای از کل فهرست واقعی‌اند.");
+}
+
 function statsSummary(team){
   const box=team?.recent_boxscore||{};
   const labels={
@@ -230,11 +285,21 @@ function renderGraphMatch(){
   const context=byId("teamKnowledge");
   if(!explorer||!context)return;
   explorer.replaceChildren();context.replaceChildren();
+  const modes=add(explorer,"div","graphModes");
+  for(const [id,label] of [["rivals","روابط تیم‌ها و حریفان"],["players","باشگاه ← پست ← بازیکن"]]){
+    const button=add(modes,"button",model.mode===id?"selected":"",label);
+    button.type="button";
+    button.addEventListener("click",()=>{
+      if(model.mode===id)return;
+      model.mode=id;model.lastKey=null;renderGraphMatch();
+    });
+  }
   const graph=graphNeighbors(match,evidence.results);
   model.lastGraph=graph;
-  if(graph)drawGraph(explorer,graph);
-  else add(explorer,"p","graphEmpty","مسابقات تاریخی کافی برای ساخت گراف این رقابت ثبت نشده است.");
   const current=model.knowledge?.matches?.[key];
+  if(model.mode==="players")drawSquadGraph(explorer,match,current);
+  else if(graph)drawGraph(explorer,graph);
+  else add(explorer,"p","graphEmpty","مسابقات تاریخی کافی برای ساخت گراف این رقابت ثبت نشده است.");
   if(current){
     const sides=add(context,"div","squadColumns");
     rosterPanel(sides,match.home,current.teams?.[match.home.id]);
