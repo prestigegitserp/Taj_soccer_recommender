@@ -43,6 +43,27 @@ async function check(page,viewport){
     throw Error("Neural probabilities invalid: "+JSON.stringify(probs));
   await page.screenshot({path:"test-results/taj-"+viewport+".png",fullPage:true});
   console.log("Verified browser LiteRT CPU forecast:",probs,"sum:",probs.reduce((a,b)=>a+b,0));
+
+  // Once the first real LiteRT inference has initialized the model, cut off
+  // the internet. Switching match cards must still infer locally in the same
+  // worker with the downloaded model and saved match history.
+  await page.context().setOffline(true);
+  for(let i=1;i<5;i++){
+    await page.locator(".matchCard").nth(i).click();
+    await page.waitForFunction(() => {
+      const text=document.querySelector("#neuralStatus")?.textContent||"";
+      return text.includes("پیش‌بینی با مدل") &&
+        document.querySelectorAll(".neuralProbability strong").length===3;
+    },null,{timeout:35000});
+    const rows=await page.locator(".neuralProbability strong").allTextContents();
+    const probability=rows.map(s=>Number(s.replace("٪","").trim()));
+    if(Math.abs(probability.reduce((a,b)=>a+b,0)-100)>.25||
+       probability.some(x=>!Number.isFinite(x))) {
+      throw Error("Offline LiteRT prediction invalid for match "+i+": "+JSON.stringify(probability));
+    }
+    console.log("OFFLINE match",i+1,"LiteRT forecast",probability);
+  }
+  await page.context().setOffline(false);
 }
 try{
   const desktop=await browser.newPage({viewport:{width:1440,height:1000},locale:"fa-IR"});
