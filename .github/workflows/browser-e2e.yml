@@ -1,0 +1,52 @@
+name: Browser proof - real LiteRT CPU AI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/index.html"
+      - "docs/app.mjs"
+      - "docs/ui.css"
+      - "docs/football-features.mjs"
+      - "docs/litert-worker.mjs"
+      - "docs/neural-ui.mjs"
+      - "docs/models/model-card.json"
+      - "docs/models/football_1x2.tflite"
+      - "tests/e2e_browser.mjs"
+      - ".github/workflows/browser-e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: taj-browser-e2e
+  cancel-in-progress: true
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install headless Chromium for verification (not for visitors)
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve GitHub Pages assets locally and assert real CPU inference
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 --directory docs > /tmp/taj_http.log 2>&1 &
+          sleep 2
+          node tests/e2e_browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: taj-browser-desktop-mobile
+          path: test-results/
+          retention-days: 7
