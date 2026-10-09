@@ -13,7 +13,7 @@ function temperatureAdjust(values,temp){
   const total=q.reduce((a,b)=>a+b,0);
   return q.map(v=>v/total);
 }
-let runtime=null,model=null,card=null;
+let runtime=null,model=null,card=null,graphModel=null,graphCard=null;
 const send=(type,value={})=>self.postMessage({type,...value});
 async function initialize(){
   if(model&&card)return;
@@ -35,6 +35,42 @@ async function initialize(){
   card=info;
   send("ready",{card});
 }
+async function initializeGraph(){
+  if(graphModel&&graphCard)return;
+  await initialize();
+  const response=await fetch("./models/graph-card.json",{cache:"no-store"});
+  if(!response.ok)throw new Error("مدل گراف هنوز منتشر نشده است.");
+  const metadata=await response.json();
+  if(metadata.schema!=="taj-graph-ai-v1"||metadata.input_features?.length!==42)
+    throw new Error("نسخه مدل گراف با مرورگر ناسازگار است.");
+  send("graphLoading",{message:"در حال دریافت شبکه عصبی چندلایه گراف..."});
+  graphModel=await runtime.loadAndCompile(
+    new URL("./models/graph_1x2.tflite",self.location.href).href,{accelerator:"wasm"});
+  graphCard=metadata;
+  send("graphReady",{card:graphCard});
+}
+async function graphInference(message){
+  let input,results;
+  try{
+    await initializeGraph();
+    const vector=message.vector;
+    if(!Array.isArray(vector)||vector.length!==graphCard.input_features.length
+      ||vector.some(x=>!Number.isFinite(x)))
+      throw new Error("بردار گراف معتبر نیست.");
+    input=new runtime.Tensor(new Float32Array(vector),[1,42]);
+    results=await graphModel.run([input]);
+    const raw=await results[0].data();
+    const probabilities=temperatureAdjust(Array.from(raw),graphCard.temperature);
+    if(!probabilities||Math.abs(probabilities.reduce((a,b)=>a+b,0)-1)>1e-5)
+      throw new Error("خروجی احتمالات گراف معتبر نیست.");
+    send("graphPrediction",{id:message.id,probabilities,card:graphCard});
+  }catch(err){
+    send("graphError",{id:message.id,message:String(err?.message||err).slice(0,260)});
+  }finally{
+    try{input?.delete();}catch{}
+    try{for(const t of results||[])t.delete();}catch{}
+  }
+}
 self.onmessage=async ({data})=>{
   const m=data||{};
   if(m.type==="init"){
@@ -42,6 +78,12 @@ self.onmessage=async ({data})=>{
     catch(err){send("error",{message:String(err?.message||err).slice(0,260)});}
     return;
   }
+  if(m.type==="initGraph"){
+    try{await initializeGraph();}
+    catch(err){send("graphError",{message:String(err?.message||err).slice(0,260)});}
+    return;
+  }
+  if(m.type==="predictGraph"){await graphInference(m);return;}
   if(m.type!=="predict")return;
   let input,results;
   try{
