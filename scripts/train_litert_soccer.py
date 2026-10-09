@@ -242,12 +242,27 @@ def train(games):
     print("HELD-OUT TEST / Poisson:",poisson_result,flush=True)
     print("HELD-OUT TEST / model:",result,flush=True)
     print("HELD-OUT TEST / train-freq baseline:",baseline_result,flush=True)
-    converter=tf.lite.TFLiteConverter.from_keras_model(model)
+    # Browser LiteRT.js currently requires input rank AND fixed dimensions
+    # to match. Keras converter defaults to dynamic batch [-1,20], while a
+    # single browser prediction provides [1,20]. Export fixed batch size 1.
+    @tf.function(input_signature=[tf.TensorSpec(
+        shape=(1,len(FEATURES)),dtype=tf.float32,name="features")])
+    def browser_predict(features):
+        return model(features,training=False)
+    concrete=browser_predict.get_concrete_function()
+    converter=tf.lite.TFLiteConverter.from_concrete_functions([concrete],model)
     compiled=converter.convert()
     # Sanity check TFLite output against TensorFlow before publication.
     runner=tf.lite.Interpreter(model_content=compiled)
     runner.allocate_tensors()
     i=runner.get_input_details()[0];o=runner.get_output_details()[0]
+    expected_shape=[1,len(FEATURES)]
+    if i["shape_signature"].tolist()!=expected_shape:
+        raise RuntimeError("Browser incompatible dynamic shape: "+
+            str(i["shape_signature"].tolist()))
+    if o["shape_signature"].tolist()!=[1,3]:
+        raise RuntimeError("Browser incompatible output shape: "+
+            str(o["shape_signature"].tolist()))
     diffs=[]
     for row,reference in zip(xz[nvalid:nvalid+12],test_raw[:12]):
         runner.set_tensor(i["index"],row.reshape(1,-1))
