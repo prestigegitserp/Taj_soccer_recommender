@@ -148,6 +148,7 @@
 <script type="module">
   import {mountLocalAI} from "./local-ai-ui.mjs";
   import {flatten,nextFive,analyze} from "./app.mjs";
+  import {graphNeighbors} from "./graph-features.mjs";
   mountLocalAI(async () => {
     const response=await fetch("./data/feed.json",{cache:"no-store"});
     if(!response.ok)return null;
@@ -158,7 +159,33 @@
     const index=buttons.indexOf(document.querySelector("#matches .matchCard.active"));
     const game=matches[index];
     if(!game)return null;
-    const result=analyze(game,flatten(feed));
+    const all=flatten(feed);
+    const result=analyze(game,all);
+    const graph=graphNeighbors(game,all);
+    let evidence=null;
+    try{
+      const response=await fetch("./data/match-knowledge.json",{cache:"force-cache"});
+      if(response.ok){
+        const source=await response.json();
+        evidence=source.matches?.[game.league+":"+game.id]||null;
+      }
+    }catch{}
+    const relevantSquad=team=>{
+      const value=evidence?.teams?.[team.id];
+      if(!value)return null;
+      const byPosition={};
+      for(const p of value.roster||[]){
+        const pos=p.position||"unknown";
+        if(!byPosition[pos])byPosition[pos]=[];
+        if(byPosition[pos].length<6)byPosition[pos].push(p.name);
+      }
+      return {
+        source:"ESPN registered squad, not starting XI",
+        byPosition,playersListed:(value.roster||[]).length,
+        recentBoxscore:value.recent_boxscore||{},
+        matchesChecked:value.games_checked||0
+      };
+    };
     return {
       game:{home:game.home.name,away:game.away.name,
         date:game.kickoff,competition:game.league,
@@ -167,8 +194,17 @@
         homeScored:result.home?.scored,homeConceded:result.home?.conceded,
         awayScored:result.away?.scored,awayConceded:result.away?.conceded,
         leagueSampleSize:result.leagueN},
-      source:{provider:"ESPN public scoreboard",lastRefresh:feed.generated_at,
-        note:"No future-match event feed, lineups, video, tracking or xG provided."}
+      knowledgeGraph:graph?{
+        elo:{home:graph.ratings.home,away:graph.ratings.away},
+        commonOpponents:graph.common,
+        directMeetings:graph.direct,
+        homeRecentOpponents:graph.neighbors[game.home.id]?.slice(0,4),
+        awayRecentOpponents:graph.neighbors[game.away.id]?.slice(0,4)
+      }:null,
+      squadEvidence:{home:relevantSquad(game.home),away:relevantSquad(game.away)},
+      source:{provider:"ESPN public scoreboard / roster / boxscore",
+        lastRefresh:feed.generated_at,
+        note:"Registered squad is NOT confirmed starting XI; graph Elo is a derived scoreline feature, not official club power; no xG or future tracking."}
     };
   });
 </script>
