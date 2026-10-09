@@ -65,3 +65,23 @@ The model's holdout Brier score was **0.63411** versus the same-sample Poisson
 baseline **0.63590**. The neural model was **worse in Log Loss and top-outcome
 accuracy** than that Poisson baseline. Do not interpret this modest experimental
 model as an established best-in-class soccer prediction system.
+
+## 2026-10 — Multi-layer rival knowledge graph
+
+The published site now adds *two* evidence-backed graph projections:
+
+1. **Opponent knowledge graph**: real, dated `team --played-- team` edges; latest six opponent links, direct rivalry results, shared opponents, 80-match rolling Elo, and two-hop adversary strength. All graph computation is in `docs/graph-features.mjs` in each visitor's browser; source goals and opponents are from completed public scoreboards.
+2. **Team → position → player knowledge graph**: a separate view assembled from current ESPN **club rosters**, not fabricated projected lineups. Players, jersey numbers and positions come directly from public roster data. It shows *squad members*, NOT an officially confirmed starting XI.
+
+**Deep rival network:** `scripts/train_graph_ai.py` trains a 4-layer, 42-input, graph-conditioned neural model (20 prior pre-match features and 22 causal graph neighborhood features). The graph metrics and features match exactly between Python and JavaScript (pytest parity). Model weights are exported to a fixed-batch `.tflite` of around 52 KB. The existing base neural model uses a separate `.tflite` of about 7 KB.
+
+**Single in-browser LiteRT CPU worker:** Both independent networks share one already-loaded LiteRT.js WASM engine; there is no GPU/server inference bill. The graph prediction and optional validation-selected weighted graph+Poisson ensemble appear alongside the original network and Poisson.
+
+**Squad/boxscore provenance:** GitHub Actions also runs `scripts/build_match_knowledge.py` after each fixture update, collecting current registered squad members and stats (only present values: e.g., shots, shots on target, possession, yellow cards) from recent completed-match ESPN boxscores. Every average carries a count of observed games; missing statistics are not replaced with zero or guessed. Historical summary responses and rosters are cached to reduce traffic.
+
+**Evaluation (snapshot; see live graph-card):** The graph ensemble was selected on chronologically later *validation* matches; on 526 subsequent held-out matches Brier was 0.63708 versus 0.64171 for the comparable Poisson baseline. Graph-model-only Brier was 0.64090. Log-loss advantages are modest. These numbers may change with future retraining; none imply reliable betting predictions.
+
+**Scope honesty:** The 42-dimensional graph neural prediction is learned from prior **match outcomes only**. The richer current roster and boxscore observations are presented as evidence in the UI and optional local LLM context; they are **not** historically time-aligned training covariates in this release. True lineup-aware inference would require a licensed or reliably reconstructable historical pre-kickoff lineup database; to use current rosters retrospectively would leak future transfers and damage model validity. This is graph-conditioned MLP with hand-defined one/two-hop propagation, not a trainable GNN.
+
+[Graph input Python](../scripts/graph_features.py) · [Graph input JS](graph-features.mjs) · [Graph trainer](../scripts/train_graph_ai.py) · [Model card](models/graph-card.json) · [Live evidence](data/match-knowledge.json).
+

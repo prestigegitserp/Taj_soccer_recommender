@@ -240,3 +240,12 @@ scripts/             real-provider network smoke checks
 - Code MIT license covers code only; dataset licenses and attribution are separate. Respect [SkillCorner](https://github.com/SkillCorner/opendata) and [IDSSE](https://github.com/spoho-datascience/idsse-data) source terms.
 
 For detailed assumptions and evaluation limits see [METHODOLOGY.md](docs/METHODOLOGY.md).
+
+## 🕸️ Rival knowledge graph + 42-feature deep model
+
+TAJ now includes **an actual second LiteRT neural model** with 20 prior scoreline features plus 22 real opponent-graph features. It is a graph-*conditioned* deep network, **not a learned GNN**. It has a chronological holdout and a validation-selected ensemble with Poisson. Both models infer locally in one browser CPU Worker.
+
+An interactive evidence panel links the two teams to **actual past opponents** (including two-hop opponent strength and mutual opponents). A separate knowledge-graph mode links each club to position groups and real roster players. Latest verified public boxscores include possession, shots, shots on target and cards where available, with explicit sample coverage; these snapshots are **not automatically used by the neural predictor**, because historical pre-match lineups/stat archives would be needed to avoid data leakage.
+
+**[Launch interactive TAJ](https://prestigegitserp.github.io/Taj_soccer_recommender/)** · **[Graph-model evaluation card](docs/models/graph-card.json)** · **[Data provenance](docs/README.md)**
+
