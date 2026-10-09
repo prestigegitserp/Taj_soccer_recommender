@@ -108,5 +108,32 @@
   </footer>
 </main>
 <script type="module" src="./app.mjs"></script>
+<script type="module">
+  import {mountLocalAI} from "./local-ai-ui.mjs";
+  import {flatten,nextFive,analyze} from "./app.mjs";
+  mountLocalAI(async () => {
+    const response=await fetch("./data/feed.json",{cache:"no-store"});
+    if(!response.ok)return null;
+    const feed=await response.json();
+    const league=document.querySelector("#leagueTabs button.current")?.dataset.league||"all";
+    const matches=nextFive(flatten(feed),league);
+    const buttons=[...document.querySelectorAll("#matches .matchCard")];
+    const index=buttons.indexOf(document.querySelector("#matches .matchCard.active"));
+    const game=matches[index];
+    if(!game)return null;
+    const result=analyze(game,flatten(feed));
+    return {
+      game:{home:game.home.name,away:game.away.name,
+        date:game.kickoff,competition:game.league,
+        homeRecent:result.home?.matches,awayRecent:result.away?.matches},
+      analysis:{modelForecast:result.forecast,
+        homeScored:result.home?.scored,homeConceded:result.home?.conceded,
+        awayScored:result.away?.scored,awayConceded:result.away?.conceded,
+        leagueSampleSize:result.leagueN},
+      source:{provider:"ESPN public scoreboard",lastRefresh:feed.generated_at,
+        note:"No future-match event feed, lineups, video, tracking or xG provided."}
+    };
+  });
+</script>
 </body>
 </html>
