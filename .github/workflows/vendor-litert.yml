@@ -1,0 +1,47 @@
+name: Vendor LiteRT WebAssembly for GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/vendor-litert.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Obtain version-pinned official LiteRT WebAssembly
+        run: |
+          npm install --no-save @litertjs/core@2.5.3
+          test -d node_modules/@litertjs/core/wasm
+          mkdir -p docs/vendor/litert/wasm
+          cp -v node_modules/@litertjs/core/wasm/* docs/vendor/litert/wasm/
+          ls -lh docs/vendor/litert/wasm/
+      - name: Verify WASM binary magic and commit checked assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          files=list(Path("docs/vendor/litert/wasm").glob("*.wasm"))
+          assert files
+          for f in files:
+              assert f.open("rb").read(4)==b"\0asm",f
+              print(f.name,f.stat().st_size)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git reset --mixed origin/main
+          git add -f docs/vendor/litert/wasm
+          if ! git diff --cached --quiet; then
+            git commit -m "vendor: pin working LiteRT WASM runtime for static Pages [skip ci]"
+            git push origin HEAD:main
+          fi
