@@ -44,9 +44,21 @@ function report(prediction){
       "Brier آزمون زمانی: "+result.brier+" | خط مبنای فراوانی: "+base.brier));
     footer.appendChild(node("span","",
       "Log loss آزمون زمانی: "+result.log_loss+" | خط مبنا: "+base.log_loss));
+    const poisson=card?.poisson_baseline_holdout;
+    if(poisson){
+      footer.appendChild(node("span","",
+        "Poisson در همان آزمون: Brier "+poisson.brier+" | Log loss "+poisson.log_loss));
+      if(result.brier>=poisson.brier){
+        footer.appendChild(node("span","neuralCaution",
+          "هشدار: مدل عصبی روی آزمون تاریخی از Poisson بهتر نبود؛ دو خروجی را با احتیاط مقایسه کن."));
+      }else{
+        footer.appendChild(node("span","",
+          "در این بازه آزمون، Brier مدل عصبی کمتر از Poisson بوده است؛ تضمینی برای بازی‌های آینده نیست."));
+      }
+    }
     if(result.brier>=base.brier){
       footer.appendChild(node("span","neuralCaution",
-        "این نسخه هنوز در آزمون Brier از خط مبنای فراوانی بهتر نشده است؛ نتیجه صرفاً آزمایشی است."));
+        "در همین آزمون، مدل از خط مبنای ساده فراوانی هم بهتر نشده است."));
     }
   }
   root.appendChild(footer);
