@@ -72,6 +72,21 @@
           <div class="loadingCard"><div class="loadingLine"></div><div class="loadingLine short"></div><div class="loadingLine"></div></div>
           <div class="loadingCard"><div class="loadingLine"></div><div class="loadingLine short"></div><div class="loadingLine"></div></div>
         </div>
+        <section class="graphExplorerPanel" id="graphExplorerPanel">
+          <div class="graphPanelTitle">
+            <div><span class="graphEyebrow">OPPONENT KNOWLEDGE GRAPH</span><h3>گراف واقعی رقابت دو تیم</h3></div>
+            <span class="graphTag">دو گام · روابط حریفان</span>
+          </div>
+          <p class="graphIntro">مسابقات ثبت‌شده به یال‌های گراف تبدیل می‌شوند. قدرت حریفان، حریف مشترک و رودرروی واقعی روی دستگاه خودت محاسبه می‌شوند.</p>
+          <div id="knowledgeGraph" class="graphContent">در حال محاسبه گراف بازی...</div>
+        </section>
+        <section class="graphExplorerPanel" id="squadExplorerPanel">
+          <div class="graphPanelTitle">
+            <div><span class="graphEyebrow">SQUAD & MATCH STATS</span><h3>مقایسه نفرات و آمار دو تیم</h3></div>
+            <span class="graphTag">داده ثبت‌شده · بدون حدس</span>
+          </div>
+          <div id="teamKnowledge" class="graphContent"></div>
+        </section>
         <div class="sourceDisclosure">
           <span class="disclosureIcon">ⓘ</span>
           <div><strong>شفافیت داده و دقت تحلیل</strong><p id="dataDisclosure">این محصول داده‌های واقعی بازی را از منبع عمومی دریافت می‌کند. مدل‌های سبک در مرورگر اجرا می‌شوند. Tracking برای پنج بازی آینده در دسترس نیست؛ بنابراین ادعای Heatmap واقعی یا تاکتیک قطعی نداریم.</p></div>
@@ -83,6 +98,15 @@
         </div>
       </div>
       <aside class="insightsColumn" aria-label="Match intelligence">
+        <section class="graphNeuralPanel" id="graphNeuralPanel">
+          <div class="graphNeuralHeader">
+            <div><span class="graphEyebrow">42 FEATURES · RIVAL GRAPH NEURAL AI</span><h3>موتور چندلایه هوش گرافی</h3></div>
+            <span class="graphTag">LiteRT · Local CPU</span>
+          </div>
+          <p class="graphIntro">۲۲ ویژگی گراف رقبا + ۲۰ ویژگی فرم؛ شبکه ۴لایه آموزش‌دیده و ترکیب Ensemble انتخاب‌شده بر اساس اعتبارسنجی تاریخی.</p>
+          <p id="graphStatus" class="graphStatus">در انتظار داده و مدل واقعی...</p>
+          <div id="graphModelResults"></div>
+        </section>
         <section class="neuralPanel" id="neuralPrediction" aria-label="LiteRT neural match forecasts">
           <div class="neuralHeading">
             <div><span class="neuralKicker">REAL ML · LOCAL INFERENCE</span><h3>مغز پیش‌بینی عصبی</h3></div>
@@ -120,6 +144,7 @@
 </main>
 <script type="module" src="./app.mjs"></script>
 <script type="module" src="./neural-ui.mjs"></script>
+<script type="module" src="./graph-ui.mjs"></script>
 <script type="module">
   import {mountLocalAI} from "./local-ai-ui.mjs";
   import {flatten,nextFive,analyze} from "./app.mjs";
