@@ -10,6 +10,17 @@ async function check(page,viewport){
     if(message.type()==="error")messages.push("console: "+message.text().slice(0,400));
   });
   page.on("pageerror",error=>messages.push("pageerror: "+String(error.message).slice(0,400)));
+  page.on("response",response=>{
+    const url=response.url();
+    if(url.includes("litert")||url.endsWith(".wasm")){
+      const record="asset "+response.status()+" "+url;
+      console.log(record);messages.push(record);
+    }
+  });
+  page.on("requestfailed",request=>{
+    if(request.url().includes("litert")||request.url().includes(".wasm"))
+      messages.push("request failed: "+request.url()+" "+request.failure()?.errorText);
+  });
   await page.goto(site,{waitUntil:"domcontentloaded",timeout:60000});
   await page.locator(".matchCard").first().waitFor({timeout:40000});
   let count=await page.locator(".matchCard").count();
