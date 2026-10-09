@@ -1,0 +1,53 @@
+name: Train and publish LiteRT football AI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/train_litert_soccer.py"
+      - ".github/workflows/train-ai.yml"
+  schedule:
+    - cron: "17 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: taj-ai-model-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install minimal CPU training dependencies (only in GitHub Actions)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "tensorflow-cpu==2.19.1" "numpy>=1.26,<2.2"
+      - name: Refresh historical completed results and train real MLP
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+          OMP_NUM_THREADS: "2"
+        run: python scripts/train_litert_soccer.py
+      - name: Validate model artifact and transparency card
+        run: |
+          test -s docs/models/football_1x2.tflite
+          python -c "import json; x=json.load(open('docs/models/model-card.json')); assert len(x['input_features'])==20; assert x['train_n']>200; assert x['holdout']['n']>50"
+      - name: Commit new weights, metrics and historical archive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f training/history.json docs/models/football_1x2.tflite docs/models/model-card.json
+          if ! git diff --cached --quiet; then
+            git commit -m "model: publish chronological historical football LiteRT model [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
