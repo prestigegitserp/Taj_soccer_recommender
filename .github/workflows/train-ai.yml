@@ -52,6 +52,6 @@ jobs:
           git reset --mixed origin/main
           git add -f training/history.json docs/models/football_1x2.tflite docs/models/model-card.json
           if ! git diff --cached --quiet; then
-            git commit -m "model: publish chronological historical football LiteRT model [skip ci]"
+            git commit -m "model: publish validated LiteRT football weights and run browser proof"
             git push origin HEAD:main
           fi
