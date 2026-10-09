@@ -1,5 +1,11 @@
 import datetime as dt
-from scripts.build_public_feed import normalize,build
+import importlib.util
+from pathlib import Path
+file_path=Path(__file__).resolve().parents[1]/"scripts"/"build_public_feed.py"
+spec=importlib.util.spec_from_file_location("fixture_feed",file_path)
+module=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+normalize,build=module.normalize,module.build
 
 def event(i="1",state="pre",date="2026-10-11T20:00:00Z"):
     return {"id":i,"date":date,"status":{"type":{"state":state}},
