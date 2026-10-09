@@ -179,6 +179,31 @@ def calibrate(probs,labels,temp):
     p=np.maximum(probs,1e-6)**(1/float(temp))
     return p/p.sum(axis=1,keepdims=True)
 
+def poisson_baseline(feature_matrix):
+    """Chronology-safe version of the existing site Poisson for fair comparison."""
+    output=[]
+    for x in feature_matrix:
+        bh,ba=float(x[0]),float(x[1])
+        base=max(.45,(bh+ba)/2)
+        nh,na=float(x[7])*6,float(x[11])*6
+        shrink=lambda mean,n:(n*float(mean)+6*base)/(n+6)
+        lh=min(3.7,max(.25,(shrink(x[4],nh)*shrink(x[9],na)/base)*(bh/base)))
+        la=min(3.7,max(.25,(shrink(x[8],na)*shrink(x[5],nh)/base)*(ba/base)))
+        home=draw=away=total=0.
+        ph=math.exp(-lh)
+        for h in range(11):
+            if h:ph*=lh/h
+            pa=math.exp(-la)
+            for a in range(11):
+                if a:pa*=la/a
+                p=ph*pa
+                total+=p
+                if h>a:home+=p
+                elif h==a:draw+=p
+                else:away+=p
+        output.append([home/total,draw/total,away/total])
+    return np.array(output,dtype="float64")
+
 def train(games):
     import tensorflow as tf
 
@@ -213,6 +238,8 @@ def train(games):
     baseline=np.broadcast_to(baseline_probs,(len(y)-nvalid,3))
     result=metrics(test_pred,y[nvalid:])
     baseline_result=metrics(baseline,y[nvalid:])
+    poisson_result=metrics(poisson_baseline(x[nvalid:]),y[nvalid:])
+    print("HELD-OUT TEST / Poisson:",poisson_result,flush=True)
     print("HELD-OUT TEST / model:",result,flush=True)
     print("HELD-OUT TEST / train-freq baseline:",baseline_result,flush=True)
     converter=tf.lite.TFLiteConverter.from_keras_model(model)
@@ -240,6 +267,7 @@ def train(games):
         "temperature":round(temperature,4),
         "train_n":ntrain,"validation_n":nvalid-ntrain,
         "holdout":result,"frequency_baseline_holdout":baseline_result,
+        "poisson_baseline_holdout":poisson_result,
         "train_until":dates[ntrain-1],"validation_until":dates[nvalid-1],
         "test_from":dates[nvalid],
         "data_note":"Historical ESPN results, no live lineup, tracking, xG, tactical labels",
