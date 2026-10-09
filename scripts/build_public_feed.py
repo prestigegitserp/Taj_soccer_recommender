@@ -88,14 +88,17 @@ def fetch_json(url,attempts=3):
     raise RuntimeError(f"ESPN fetch failed: {str(last)[:130]}")
 
 def fetch_league(league,now,fetcher=fetch_json):
-    # One future window and one historical form window. Select matches in the
-    # BROWSER from a merged, never fabricated set of competitions/periods.
-    windows=[(now-dt.timedelta(days=55),now+dt.timedelta(days=1)),
-             (now-dt.timedelta(days=1),now+dt.timedelta(days=47))]
+    # ESPN stopped supporting YYYYMMDD-YYYYMMDD ranges in Sep 2026.
+    # Single-month YYYYMM queries are supported; use previous/current/next
+    # calendar month to cover both recent form and the closest fixtures.
     found={}
-    for lo,hi in windows:
-        interval=f"{lo:%Y%m%d}-{hi:%Y%m%d}"
-        url=f"https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?"+urllib.parse.urlencode({"dates":interval,"limit":500})
+    for offset in (-1,0,1):
+        serial=now.year*12+(now.month-1)+offset
+        year,month=divmod(serial,12)
+        year=int(year);month=int(month+1)
+        period=f"{year:04d}{month:02d}"
+        url=(f"https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?"
+             +urllib.parse.urlencode({"dates":period,"limit":500}))
         data=fetcher(url)
         if not isinstance(data,dict) or not isinstance(data.get("events"),list):
             raise ValueError("ESPN scoreboard format missing events")
@@ -104,7 +107,6 @@ def fetch_league(league,now,fetcher=fetch_json):
             game=normalize(ev,league)
             if game and game["id"]:
                 old=found.get(game["id"])
-                # Prefer updated in-play/final states to older prerelease snapshots.
                 if old is None or (old["state"]=="pre" and game["state"]!="pre"):
                     found[game["id"]]=game
     return sorted(found.values(),key=lambda g:(g["kickoff"],g["id"]))
