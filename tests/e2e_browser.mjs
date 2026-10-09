@@ -42,6 +42,15 @@ async function check(page,viewport){
   if(probs.some(x=>!Number.isFinite(x))||Math.abs(probs.reduce((a,b)=>a+b,0)-100)>.25)
     throw Error("Neural probabilities invalid: "+JSON.stringify(probs));
   await page.locator("#knowledgeGraph svg").first().waitFor({timeout:40000});
+  const modeButtons=page.locator("#knowledgeGraph .graphModes button");
+  if(await modeButtons.count()!==2)throw Error("Both graph projection modes are required");
+  await modeButtons.nth(1).click();
+  await page.locator("#knowledgeGraph .squadGraphCanvas svg").waitFor({timeout:12000});
+  if(!(await page.locator("#knowledgeGraph .squadGraphCanvas svg").textContent()).trim())
+    throw Error("Club-position-player graph is empty");
+  await page.locator("#knowledgeGraph .graphModes button").first().click();
+  await page.locator("#knowledgeGraph .graphCanvas svg").waitFor({timeout:12000});
+  console.log("Verified opponent and squad knowledge graph modes");
   const rosterPlayers=await page.locator(".squadPlayer").count();
   if(rosterPlayers<20)throw Error("Real squad roster comparison missing: "+rosterPlayers);
   await page.waitForFunction(()=>{
