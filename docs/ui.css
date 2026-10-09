@@ -60,3 +60,18 @@ footer{border-top:1px solid #263f4e;margin-top:60px;padding:26px 0 50px;display:
 @media(max-width:1030px){.topStatus{display:none}.workspace{grid-template-columns:1fr}.matchGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.insightsColumn{margin-top:9px}.hero{gap:22px}.heroDisplay{height:225px}}
 @media(max-width:740px){.navLinks a:not(.navCurrent){display:none}.container{padding:0 15px}.hero{grid-template-columns:1fr;min-height:0;padding-top:39px}.heroDisplay{display:none}.heroCopy h1{font-size:37px}.metrics{grid-template-columns:repeat(2,1fr)}.sectionHead{flex-direction:column;gap:12px;align-items:stretch}.filterRow{max-width:none;justify-content:flex-start}.matchGrid{grid-template-columns:1fr}.metric{min-height:112px;padding:16px}.metric strong{font-size:29px}.topbar{padding:12px 17px}.formTwo{grid-template-columns:1fr 1fr}.analysisSection{padding:15px}.insightHero{padding:16px}.researchLink a{width:100%;text-align:center}}
 @media(max-width:400px){.formTwo{grid-template-columns:1fr}.probRow{grid-template-columns:60px minmax(0,1fr) 53px}.heroCopy h1{font-size:33px}.filterRow button{padding:7px 8px}.analysisFooter{font-size:9px}}
+
+/* Real, on-device LLM is OPTIONAL and lazy-loaded only after explicit consent. */
+.localAiPanel{margin-top:15px;padding:20px;border:1px solid #37776c;border-radius:18px;background:linear-gradient(145deg,#123831,#10212e);color:#e4fff6}
+.aiHead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.aiHead strong{font-size:16px}
+.aiBadge{color:#57f7c1;border-radius:16px;border:1px solid #419784;padding:4px 9px;font:700 10px Space Grotesk,sans-serif}
+.localAiPanel p{font-size:12px;line-height:2;color:#bbd9d3}.localAiPanel .aiWarning{color:#f2cf9d}
+.aiActions{display:flex;gap:9px;flex-wrap:wrap}.aiActions button,.localAiPanel #aiAsk{padding:9px 13px;background:#235c4c;border:1px solid #58a88e;border-radius:10px;color:#e4fff4;font-weight:700;font-size:12px}
+.aiActions #aiStop{background:#273f43}.aiActions button:disabled,.localAiPanel #aiAsk:disabled{opacity:.48;cursor:default}
+.aiStatus{margin:12px 0;color:#a3d5c7;font-size:11px;line-height:1.8;overflow-wrap:anywhere}
+.localAiPanel progress{width:100%;height:8px;accent-color:#50eeba}
+.aiQuestionLabel{font-size:12px;color:#b6ded4;display:block;margin:13px 0 6px}
+.localAiPanel textarea{display:block;width:100%;padding:11px;background:#0a2430;color:#e3fff4;border-radius:10px;border:1px solid #46786b;font:12px/2 Vazirmatn,sans-serif;resize:vertical}
+.localAiPanel #aiAsk{margin-top:9px}
+.aiAnswer{white-space:pre-wrap;overflow-wrap:anywhere;color:#d3ebea;font-size:12px;line-height:2.3;margin:13px 0}
+.aiFootnote{color:#9bbeb1;font-size:10px;line-height:1.9;display:block}
