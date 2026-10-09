@@ -87,16 +87,22 @@ def fetch_json(url,attempts=3):
             if attempt+1<attempts:time.sleep(1.3*(attempt+1))
     raise RuntimeError(f"ESPN fetch failed: {str(last)[:130]}")
 
-def fetch_league(league,now,fetcher=fetch_json):
+def fetch_league(league,now,fetcher=fetch_json,cached=None):
     # ESPN stopped supporting YYYYMMDD-YYYYMMDD ranges in Sep 2026.
-    # Single-month YYYYMM queries are supported; use previous/current/next
-    # calendar month to cover both recent form and the closest fixtures.
+    # Single-month YYYYMM queries work; include two historic months for
+    # stronger last-six form. Cache the oldest completed month to avoid
+    # repeatedly hitting the unofficial ESPN endpoint every refresh.
     found={}
-    for offset in (-1,0,1):
+    for offset in (-2,-1,0,1):
         serial=now.year*12+(now.month-1)+offset
         year,month=divmod(serial,12)
         year=int(year);month=int(month+1)
         period=f"{year:04d}{month:02d}"
+        if offset == -2 and cached is not None:
+            old_events=[g for g in cached.get("events",[]) if str(g.get("kickoff","")).startswith(f"{year:04d}-{month:02d}")]
+            if old_events:
+                for g in old_events:found[g["id"]]=g
+                continue
         url=(f"https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?"
              +urllib.parse.urlencode({"dates":period,"limit":500}))
         data=fetcher(url)
@@ -129,7 +135,7 @@ def build(now=None,fetcher=fetch_json,previous=None):
     ok=0
     for league,label in LEAGUES.items():
         try:
-            events=fetch_league(league,now,fetcher)
+            events=fetch_league(league,now,fetcher,cached=prior.get(league))
             # A genuinely empty response can occur in off-season: preserve zero.
             packet["leagues"][league]={"name":label,"updated_at":iso_now(),"events":events}
             ok+=1
