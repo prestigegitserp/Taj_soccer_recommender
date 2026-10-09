@@ -54,7 +54,8 @@ self.onmessage=async ({data})=>{
     results=await model.run([input]);
     const raw=await results[0].data();
     const calibrated=temperatureAdjust(Array.from(raw),card.temperature);
-    if(!calibrated)throw new Error("خروجی احتمالات معتبر نبود.");
+    if(!calibrated||Math.abs(calibrated.reduce((a,b)=>a+b,0)-1)>1e-5)
+      throw new Error("خروجی احتمالات معتبر نبود.");
     send("prediction",{id:m.id,probabilities:calibrated,
       model:card.model,card});
   }catch(err){
