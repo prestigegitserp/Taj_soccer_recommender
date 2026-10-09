@@ -1,7 +1,7 @@
 {
   "schema": "taj-litert-1x2-v1",
   "model": "historical-match-mlp-v1",
-  "created_at": "2026-10-09T23:09:44.220180+00:00",
+  "created_at": "2026-10-09T23:12:31.254949+00:00",
   "input_features": [
     "league_home_goals",
     "league_away_goals",
@@ -38,10 +38,10 @@
     3
   ],
   "mean": [
-    1.53283715,
-    1.29646659,
-    0.43968171,
-    0.23712258,
+    1.53219295,
+    1.29635322,
+    0.43949181,
+    0.23734048,
     1.41058171,
     1.41174996,
     1.37579322,
@@ -56,14 +56,14 @@
     1.37855458,
     0.42471623,
     0.42651784,
-    1.29339218,
+    1.54643893,
     1.31654489
   ],
   "std": [
-    0.20449819,
-    0.17174076,
-    0.06683941,
-    0.05689528,
+    0.20440245,
+    0.17199194,
+    0.06651589,
+    0.05667572,
     0.64058179,
     0.58097392,
     0.66642827,
@@ -78,17 +78,17 @@
     0.76462954,
     0.21759982,
     0.2193058,
-    0.74943388,
+    0.91894215,
     0.82566619
   ],
-  "temperature": 1.05,
+  "temperature": 1.0,
   "train_n": 2462,
   "validation_n": 528,
   "holdout": {
     "n": 528,
-    "log_loss": 1.06204,
-    "brier": 0.63629,
-    "accuracy": 0.44508
+    "log_loss": 1.05788,
+    "brier": 0.63411,
+    "accuracy": 0.43561
   },
   "frequency_baseline_holdout": {
     "n": 528,
@@ -101,7 +101,7 @@
   "test_from": "2026-04-13T18:45:00Z",
   "data_note": "Historical ESPN results, no live lineup, tracking, xG, tactical labels",
   "model_note": "Experimental, unverified probability calibration; avoid betting/guarantees",
-  "max_tf_litert_difference": 8.940696716308594e-08,
+  "max_tf_litert_difference": 5.960464477539063e-08,
   "train_leagues": [
     "eng.1",
     "esp.1",
