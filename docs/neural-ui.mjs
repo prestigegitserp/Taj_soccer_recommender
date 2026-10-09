@@ -5,10 +5,12 @@
  */
 import {activeGameEvidence} from "./app.mjs";
 import {featuresFor,prepareInput} from "./football-features.mjs";
+import {buildGraph,GRAPH_NAMES} from "./graph-features.mjs";
 
 const byId=id=>document.getElementById(id);
 const state={worker:null,ready:false,starting:false,card:null,
-  data:new Map(),active:null,locked:false};
+  data:new Map(),active:null,locked:false,
+  graphReady:false,graphCard:null,graphCache:new Map()};
 function status(t){const e=byId("neuralStatus");if(e)e.textContent=t;}
 function node(tag,className,text){
   const el=document.createElement(tag);
@@ -69,6 +71,32 @@ function chosen(){
   const id=evidence.game.league+":"+evidence.game.id;
   return {...evidence,id};
 }
+function graphStatus(message){
+  const e=byId("graphStatus");if(e)e.textContent=message;
+}
+function askGraph(){
+  const item=chosen();
+  if(!item||!state.graphReady||!state.graphCard)return;
+  const base=featuresFor(item.game,item.results);
+  const g=buildGraph(item.game,item.results);
+  if(!base||!g){graphStatus("برای این بازی تاریخچه کافی جهت تحلیل ارتباطات حریفان ثبت نشده است.");return;}
+  const card=state.graphCard;
+  const names=card.input_features||[];
+  if(names.length!==42||JSON.stringify(names.slice(20))!==JSON.stringify(GRAPH_NAMES)){
+    graphStatus("نسخه ویژگی‌های گراف و مدل یکسان نیست؛ نتیجه ساخته نمی‌شود.");return;
+  }
+  if(state.graphCache.has(item.id)){
+    window.dispatchEvent(new CustomEvent("taj:graphPrediction",
+      {detail:{...state.graphCache.get(item.id),game:item.game,results:item.results}}));
+    graphStatus("مدل ۴۲ویژگیِ گرافی در همین مرورگر اجرا شد.");return;
+  }
+  const raw=[...base,...g.features];
+  const vector=raw.map((x,i)=>Math.max(-5,Math.min(5,
+    (x-card.means[i])/Math.max(card.stds[i],1e-5))));
+  if(vector.some(x=>!Number.isFinite(x))){graphStatus("داده ورودی گراف نامعتبر است.");return;}
+  graphStatus("در حال محاسبه شبکه چندلایه با گراف رقبا...");
+  state.worker?.postMessage({type:"predictGraph",id:item.id,vector});
+}
 function ask(){
   const item=chosen();
   if(!item||!state.ready||!state.card)return;
@@ -77,6 +105,7 @@ function ask(){
   const vector=prepareInput(raw,state.card);
   if(!vector){status("نسخه ویژگی‌های سایت با نسخه مدل همخوانی ندارد؛ پیش‌بینی عصبی غیرفعال شد.");return;}
   state.active=item.id;
+  if(state.graphReady)askGraph();
   if(state.data.has(item.id)){
     report(state.data.get(item.id));
     status("مدل آموزش‌دیده LiteRT.js · استنتاج محلی روی دستگاه");
@@ -102,8 +131,28 @@ async function ensureModel(){
     state.worker.onmessage=({data})=>{
       if(data.type==="loading"){status(data.message);}
       if(data.type==="ready"){
-        state.ready=true;state.card=data.card;status("مدل عصبی آماده شد؛ پیش‌بینی واقعی در مرورگر انجام می‌شود.");ask();
+        state.ready=true;state.card=data.card;
+        status("مدل عصبی آماده شد؛ پیش‌بینی واقعی در مرورگر انجام می‌شود.");
+        ask();
+        state.worker?.postMessage({type:"initGraph"});
       }
+      if(data.type==="graphLoading")graphStatus(data.message);
+      if(data.type==="graphReady"){
+        state.graphReady=true;state.graphCard=data.card;
+        graphStatus("شبکه گرافی روی CPU دستگاه بارگذاری شد.");
+        askGraph();
+      }
+      if(data.type==="graphPrediction"){
+        state.graphCache.set(data.id,data);
+        if(chosen()?.id===data.id){
+          const item=chosen();
+          window.dispatchEvent(new CustomEvent("taj:graphPrediction",
+            {detail:{...data,game:item.game,results:item.results}}));
+          graphStatus("پیش‌بینی گرافی واقعی روی دستگاه انجام شد.");
+        }
+      }
+      if(data.type==="graphError")graphStatus("مدل گرافی در دسترس نیست: "+String(data.message||"خطا"));
+
       if(data.type==="prediction"){
         state.data.set(data.id,data);
         if(chosen()?.id===data.id){report(data);status("پیش‌بینی با مدل آموزش‌دیده LiteRT.js · محاسبه محلی");}
@@ -143,6 +192,7 @@ export function mount(){
   const retry=byId("neuralRetry");
   retry?.addEventListener("click",()=>{
     state.worker?.terminate();state.worker=null;state.ready=false;
+    state.graphReady=false;state.graphCard=null;state.graphCache.clear();
     state.starting=false;lastKey=null;refresh();
   });
   window.addEventListener("pagehide",()=>{observer.disconnect();state.worker?.terminate();});
