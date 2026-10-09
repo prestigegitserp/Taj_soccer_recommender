@@ -242,15 +242,19 @@ def train(games):
     print("HELD-OUT TEST / Poisson:",poisson_result,flush=True)
     print("HELD-OUT TEST / model:",result,flush=True)
     print("HELD-OUT TEST / train-freq baseline:",baseline_result,flush=True)
-    # Browser LiteRT.js currently requires input rank AND fixed dimensions
-    # to match. Keras converter defaults to dynamic batch [-1,20], while a
-    # single browser prediction provides [1,20]. Export fixed batch size 1.
-    @tf.function(input_signature=[tf.TensorSpec(
-        shape=(1,len(FEATURES)),dtype=tf.float32,name="features")])
-    def browser_predict(features):
-        return model(features,training=False)
-    concrete=browser_predict.get_concrete_function()
-    converter=tf.lite.TFLiteConverter.from_concrete_functions([concrete],model)
+    # Avoid a dynamic [-1,20] batch dimension in the published TFLite
+    # artifact. Rebuild the already-trained network with a fixed batch=1
+    # Keras input and COPY its learned weights. Converting this Keras model
+    # freezes the variables; converting a raw tf.function instead produced
+    # READ_VARIABLE operator failure in TensorFlow Lite (real CI finding).
+    fixed_model=tf.keras.Sequential([
+        tf.keras.layers.Input(shape=(len(FEATURES),),batch_size=1,dtype=tf.float32),
+        tf.keras.layers.Dense(32,activation="relu"),
+        tf.keras.layers.Dense(16,activation="relu"),
+        tf.keras.layers.Dense(3,activation="softmax"),
+    ])
+    fixed_model.set_weights(model.get_weights())
+    converter=tf.lite.TFLiteConverter.from_keras_model(fixed_model)
     compiled=converter.convert()
     # Sanity check TFLite output against TensorFlow before publication.
     runner=tf.lite.Interpreter(model_content=compiled)
