@@ -83,6 +83,17 @@
         </div>
       </div>
       <aside class="insightsColumn" aria-label="Match intelligence">
+        <section class="neuralPanel" id="neuralPrediction" aria-label="LiteRT neural match forecasts">
+          <div class="neuralHeading">
+            <div><span class="neuralKicker">REAL ML · LOCAL INFERENCE</span><h3>مغز پیش‌بینی عصبی</h3></div>
+            <span class="neuralBadge">LiteRT.js · WASM</span>
+          </div>
+          <p class="neuralDescription">شبکه عصبی آموزش‌دیده روی نتایج تاریخی، با ارزیابی زمانی و محاسبه روی CPU دستگاه شما. مستقل از Poisson.</p>
+          <div id="neuralStatus" class="neuralStatus" role="status">در حال بررسی مدل واقعی...</div>
+          <div id="neuralResults" class="neuralResults"></div>
+          <div class="neuralFineprint">این مدل آزمایشی فقط از نتیجه‌های گذشته یاد گرفته است، نه ترکیب رسمی، Tracking یا xG. دقت آن برای مسابقه آینده تضمین نیست.</div>
+          <button id="neuralRetry" class="neuralRetry" type="button">بارگذاری دوباره AI ↻</button>
+        </section>
         <div class="analysisPanel" id="intelligence">
           <div class="loadingPanel"><div class="loadingLine"></div><div class="loadingLine short"></div><div class="loadingLine"></div><p>در حال آماده‌کردن تحلیل مسابقه...</p></div>
         </div>
@@ -108,6 +119,7 @@
   </footer>
 </main>
 <script type="module" src="./app.mjs"></script>
+<script type="module" src="./neural-ui.mjs"></script>
 <script type="module">
   import {mountLocalAI} from "./local-ai-ui.mjs";
   import {flatten,nextFive,analyze} from "./app.mjs";
