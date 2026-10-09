@@ -16,7 +16,10 @@ jobs:
       - run: python -m compileall -q src dashboard.py
       - run: python scripts/check_frontend.py
       - run: node --check docs/app.mjs
-      - run: node --test tests/test_browser.mjs
+      - run: node --check docs/football-features.mjs
+      - run: node --check docs/litert-worker.mjs
+      - run: node --check docs/neural-ui.mjs
+      - run: node --test tests/test_browser.mjs tests/test_neural.mjs
       - run: pytest -q
       - run: taj demo --out data/demo
       - run: taj analyze --data data/demo --out outputs/report.json
