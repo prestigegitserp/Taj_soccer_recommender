@@ -287,7 +287,7 @@ async function tryLive(){
   const ids=state.filter==="all"?Object.keys(LEAGUES):[state.filter];
   const stamp=d=>String(d.getUTCFullYear())+String(d.getUTCMonth()+1).padStart(2,"0")+String(d.getUTCDate()).padStart(2,"0");
   const today=new Date(),end=new Date(Date.now()+35*86400000);
-  const range=stamp(today)+"-"+stamp(end);
+  const range=stamp(today).slice(0,6);
   const responses=await Promise.allSettled(ids.map(async league=>{
     const controller=new AbortController(),id=setTimeout(()=>controller.abort(),9000);
     try{
