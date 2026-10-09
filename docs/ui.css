@@ -136,3 +136,9 @@ footer{border-top:1px solid #263f4e;margin-top:60px;padding:26px 0 50px;display:
 .graphModelEvidence{display:flex;flex-direction:column;gap:5px;font-size:10px;color:#b5d2c8;margin-top:12px;line-height:1.8}
 .graphWarning{color:#f6cf97}
 @media(max-width:470px){.squadColumns{grid-template-columns:1fr}.graphFacts strong{font-size:19px}.graphExplorerPanel{padding:14px 10px}.graphNeuralPanel{padding:14px 12px}}
+
+.graphModes{display:flex;gap:7px;flex-wrap:wrap;margin:5px 0 13px}
+.graphModes button{border:1px solid #41626d;background:#163440;color:#a6c9c6;padding:8px 12px;font:700 10px Vazirmatn,Tahoma;border-radius:9px}
+.graphModes button.selected{border-color:#6fe9c3;background:#215b4e;color:#ddfff3}
+.squadGraphCanvas svg{max-height:480px}
+@media(max-width:580px){.graphModes button{font-size:9px;padding:7px 9px}}
