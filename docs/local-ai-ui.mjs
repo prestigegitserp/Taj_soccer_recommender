@@ -38,9 +38,9 @@ export function mountLocalAI(getEvidence) {
     worker.onerror = () => {shutdown(); status.textContent = "راه‌اندازی مدل ناموفق بود.";};
     worker.postMessage({type:"init"});
   });
-  ask.addEventListener("click", () => {
+  ask.addEventListener("click", async () => {
     if (!ready || !worker) return;
-    const snapshot = getEvidence();
+    const snapshot = await getEvidence();
     if (!snapshot) return;
     ask.disabled = true; output.textContent = "در حال تحلیل...";
     worker.postMessage({type:"generate", snapshot, question:input.value});
