@@ -1,3 +1,24 @@
+# TAJ · Football Match Intelligence
+
+**The product works directly in your browser. No Colab, API key, server, installation or programming required.**
+
+### [🌐 Open TAJ — five upcoming matches & instant browser analysis](https://prestigegitserp.github.io/Taj_soccer_recommender/)
+
+![CI](https://github.com/prestigegitserp/Taj_soccer_recommender/actions/workflows/ci.yml/badge.svg)
+![Fixtures auto-refresh](https://github.com/prestigegitserp/Taj_soccer_recommender/actions/workflows/fixtures.yml/badge.svg)
+
+**فارسی:** صفحه اصلی از منبع آنلاین، **پنج مسابقه واقعی آینده** را در ۶ رقابت اروپایی پیدا می‌کند؛ فرم تیم‌ها، نتایج قبلی، تخمین آزمایشی ۱×۲ و فرضیه‌های قابل بررسی را نمایش می‌دهد. تمامی محاسبات تحلیلی در مرورگر خود کاربر انجام می‌شوند.
+
+**به‌روزرسانی خودکار:** GitHub Actions تقریباً هر ۳۰ دقیقه داده معتبر را می‌خواند و همان سایت را منتشر می‌کند. تازه‌سازی مستقیم در مرورگر هم تلاش می‌شود؛ اگر منبع آن را مسدود کند، زمان نسخه معتبر موجود به‌وضوح نشان داده می‌شود.
+
+**مهم:** چون Tracking بازیکنانِ بازی‌های آینده رایگان نیست، هیچ نقشه فضایی جعلی یا «ضعف تاکتیکی قطعی» ساخته نمی‌شود. برآورد Poisson صرفاً از نتیجه‌های قبلی استفاده می‌کند؛ پیش‌بینی تأییدشده نیست.
+
+**[روش کار سایت و محدودیت‌ها](docs/README.md)** · **[کد رابط سبک مرورگر](docs/app.mjs)** · **[مخزن داده زمان‌بندی‌شده](docs/data/feed.json)** · **[Tracking Viewer تاریخی](https://prestigegitserp.github.io/Taj_soccer_recommender/viewer.html)**
+
+---
+
+## Research / engineering toolkit (optional; not needed to use the website)
+
 # TAJ Soccer Recommender ⚽
 ## Football Tactical Intelligence · Tracking + Events + Spatial ML · Google Colab
 
