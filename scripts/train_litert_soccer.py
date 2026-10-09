@@ -121,7 +121,7 @@ def form(team,history,at):
     if not values:return None
     gf=average([x[0] for x in values],1.4)
     ga=average([x[1] for x in values],1.4)
-    venue=[x[0] for x in values if x[3] == (team==team and at=="home")]
+    venue=[x[0] for x in values if x[3] == (at["venue"]=="home")]
     last=values[:3]
     rest=min(20,max(0,(parse_time(at["kickoff"])-values[0][4]).total_seconds()/86400))/20 if isinstance(at,dict) else 0
     return [gf,ga,average([x[2] for x in values],1.3),len(values)/6,
@@ -144,17 +144,25 @@ def extract(match,prior):
         h[4],h[5],a[4],a[5],h[6],a[6],h[7],a[7]]
 
 def make_examples(games):
+    # Games at identical kickoff timestamps are one temporal batch.
+    # Otherwise a finished result in one 15:00 fixture could leak into
+    # features of another 15:00 fixture during retrospective training.
     by_league={k:[] for k in LEAGUES}
     x,y,dates,identifiers=[],[],[],[]
-    for g in games:
-        hist=by_league[g["league"]]
-        features=extract(g,hist)
-        if features:
-            home,away=g["home"]["score"],g["away"]["score"]
-            target=0 if home>away else 1 if home==away else 2
-            x.append(features);y.append(target);dates.append(g["kickoff"])
-            identifiers.append(g["league"]+":"+g["id"])
-        hist.append(g)
+    from itertools import groupby
+    for stamp, group in groupby(games,key=lambda g:g["kickoff"]):
+        simultaneous=list(group)
+        pending=[]
+        for g in simultaneous:
+            hist=by_league[g["league"]]
+            features=extract(g,hist)
+            if features:
+                home,away=g["home"]["score"],g["away"]["score"]
+                target=0 if home>away else 1 if home==away else 2
+                x.append(features);y.append(target);dates.append(g["kickoff"])
+                identifiers.append(g["league"]+":"+g["id"])
+            pending.append(g)
+        for g in pending:by_league[g["league"]].append(g)
     if len(x)<430:raise RuntimeError(f"Insufficient chronology-safe examples: {len(x)}")
     return np.array(x,dtype="float32"),np.array(y,dtype="int32"),dates,identifiers
 
