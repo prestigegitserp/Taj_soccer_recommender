@@ -86,6 +86,19 @@
         <div class="analysisPanel" id="intelligence">
           <div class="loadingPanel"><div class="loadingLine"></div><div class="loadingLine short"></div><div class="loadingLine"></div><p>در حال آماده‌کردن تحلیل مسابقه...</p></div>
         </div>
+        <section class="localAiPanel" id="aiPanel" aria-label="In-browser LLM">
+          <div class="aiHead"><strong>🧠 دستیار هوش مصنوعی محلی</strong><span class="aiBadge">ON-DEVICE · WEBGPU</span></div>
+          <p>پس از تأیید تو، یک مدل زبانی واقعی روی GPU دستگاهت بارگذاری می‌شود و فقط از شواهد بازی انتخاب‌شده برای توضیح و فرضیه‌سازی استفاده می‌کند.</p>
+          <p class="aiWarning">مدل اختیاری است؛ نخستین دانلود می‌تواند چندصد مگابایت باشد و حدود ۱ گیگابایت حافظه GPU لازم داشته باشد. در دستگاه ضعیف فعالش نکن. هیچ کلید API لازم نیست.</p>
+          <div class="aiActions"><button id="aiStart" type="button">فعال‌کردن مدل محلی</button><button id="aiStop" type="button" disabled>خاموش‌کردن</button></div>
+          <div id="aiStatus" role="status" class="aiStatus">غیرفعال؛ سایت بدون دانلود مدل زبانی هم کار می‌کند.</div>
+          <progress id="aiProgress" max="100" value="0" hidden></progress>
+          <label for="aiQuestion" class="aiQuestionLabel">سؤال درباره همین مسابقه</label>
+          <textarea id="aiQuestion" disabled rows="3" maxlength="420" placeholder="با توجه به شواهد موجود، کدام ریسک‌های دو تیم را باید بررسی کنم؟"></textarea>
+          <button id="aiAsk" type="button" disabled>تحلیل با LLM روی دستگاه من</button>
+          <div id="aiAnswer" class="aiAnswer" aria-live="polite"></div>
+          <small class="aiFootnote">مدل فقط آمار ارائه‌شده را می‌بیند؛ قدرت تاکتیکی، xG یا Tracking بازی آینده را نمی‌داند. LLM ممکن است اشتباه کند.</small>
+        </section>
       </aside>
     </div>
   </section>
