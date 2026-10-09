@@ -1,7 +1,7 @@
 {
   "schema": "taj-litert-1x2-v1",
   "model": "historical-match-mlp-v1",
-  "created_at": "2026-10-09T23:12:31.254949+00:00",
+  "created_at": "2026-10-09T23:15:44.270125+00:00",
   "input_features": [
     "league_home_goals",
     "league_away_goals",
@@ -96,12 +96,18 @@
     "brier": 0.65172,
     "accuracy": 0.42992
   },
+  "poisson_baseline_holdout": {
+    "n": 528,
+    "log_loss": 1.05505,
+    "brier": 0.6359,
+    "accuracy": 0.45644
+  },
   "train_until": "2026-01-25T17:00:00Z",
   "validation_until": "2026-04-12T19:00:00Z",
   "test_from": "2026-04-13T18:45:00Z",
   "data_note": "Historical ESPN results, no live lineup, tracking, xG, tactical labels",
   "model_note": "Experimental, unverified probability calibration; avoid betting/guarantees",
-  "max_tf_litert_difference": 5.960464477539063e-08,
+  "max_tf_litert_difference": 8.940696716308594e-08,
   "train_leagues": [
     "eng.1",
     "esp.1",
