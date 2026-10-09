@@ -1,256 +1,99 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAJ Tactical Intelligence — Visual Lab</title>
-<meta name="description" content="Open-data football tactical intelligence: interactive spatial analysis sandbox, explanatory recommendation cards, and JSON-report viewer.">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
-:root{--bg:#06101d;--card:#102034;--card2:#0b1b2a;--line:#254357;--txt:#ecf5fc;--muted:#93aabc;--green:#24e1b5;--blue:#83a4ff;--gold:#efbf74;--red:#ff8490}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 25% 0%,#17394a 0,transparent 40%),var(--bg);color:var(--txt);font-family:Vazirmatn,Tahoma,Arial,sans-serif}
-a{color:inherit;text-decoration:none}button,select,input{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:2px}
-header{border-bottom:1px solid #284257;background:#071522d9;backdrop-filter:blur(16px);position:sticky;top:0;z-index:5}
-.nav{max-width:1450px;margin:auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.4px;font-size:20px;direction:ltr}
-.logo{background:linear-gradient(135deg,#27ecb8,#89a7ff);padding:7px 11px;color:#06131b;border-radius:11px}
-.nav-links{display:flex;gap:11px;flex-wrap:wrap}.nav-links a{background:#122637;border:1px solid #29475b;padding:8px 14px;border-radius:12px;color:#cfe0eb;font-size:13px}
-main{max-width:1450px;padding:35px 28px 90px;margin:auto}
-.hero{display:grid;grid-template-columns:1.3fr .8fr;align-items:center;gap:30px;margin-bottom:28px}
-.eyebrow{color:var(--green);font-weight:700;font-size:13px;letter-spacing:2px;direction:ltr;text-align:right}
-h1{font-size:clamp(30px,4vw,60px);line-height:1.3;margin:8px 0 15px;font-weight:900;letter-spacing:-1.2px}
-h1 span{color:var(--green)}.lede{color:#acc6d6;line-height:2;font-size:15px;max-width:740px;margin:0}
-.hero-art{min-height:160px;border-radius:25px;background:linear-gradient(140deg,#0e3138,#10223d);border:1px solid #2c4c62;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.hero-art:before{content:"";width:180px;height:180px;border:1px solid #47dfad55;border-radius:100%;position:absolute;transform:rotate(-30deg) scaleX(1.7)}
-.hero-art strong{font-size:62px;color:#27eeb7;text-shadow:0 0 60px #24dbb583;letter-spacing:6px;z-index:1}.hero-art small{position:absolute;bottom:18px;color:#9fc9bd}
-.banner{border:1px solid #84653d;background:#372a20;border-radius:13px;padding:12px 18px;color:#f3d3a4;margin-bottom:19px;font-size:13px;line-height:1.8}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px}.stat .k{color:var(--muted);font-size:12px}.stat .v{font-size:29px;font-weight:800;direction:ltr;text-align:right;margin-top:4px}.stat .tiny{font-size:11px;color:#7f9caf}
-.workspace{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(325px,1fr);gap:18px}
-.panel{background:linear-gradient(160deg,#102437,#0b1c2b);border:1px solid var(--line);border-radius:22px;padding:20px}
-.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.panel h2{font-size:18px;margin:0}.sub{color:var(--muted);font-size:12px}
-.tabs{display:flex;gap:6px;background:#091828;padding:5px;border:1px solid #244156;border-radius:13px;direction:ltr}
-.tab{border:0;color:#98afc3;background:transparent;padding:8px 12px;border-radius:9px;font-weight:700;font-size:11px}
-.tab.on{background:#1a4e51;color:#3bffd0}
-.pitch-wrap{position:relative;border:1px solid #2b5951;border-radius:16px;overflow:hidden;background:#08302b}
-canvas{display:block;width:100%;height:auto;cursor:crosshair}
-.tip{position:absolute;pointer-events:none;display:none;background:#06131bea;color:#fff;border:1px solid #57c9a7;border-radius:10px;padding:8px 11px;font-size:12px;z-index:2}
-.legend{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#a8c4c1;font-size:12px;margin-top:12px;flex-wrap:wrap}
-.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-left:5px}
-.controls{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.field-label{font-size:12px;color:#c1d9e4;display:block;margin-bottom:6px}
-select, input[type=file]{width:100%;padding:9px;background:#0a1a29;border:1px solid #2b4c5e;color:var(--txt);border-radius:10px}
-input[type=range]{width:100%;accent-color:var(--green)}
-.toggle{display:flex;align-items:center;gap:8px;color:#b7d8d5;font-size:12px}
-aside{display:flex;flex-direction:column;gap:14px}
-.intro{font-size:13px;color:#aac8d3;line-height:1.9;margin:0 0 12px}
-.reco{background:#0a1b2b;border:1px solid #315569;border-radius:15px;padding:16px;margin-top:11px;transition:transform .2s, border-color .2s}
-.reco:hover{transform:translateY(-2px);border-color:#38bfaf}
-.rhead{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.pill{background:#174338;color:#62eac3;border-radius:15px;padding:3px 10px;font-size:11px;white-space:nowrap}
-.rtitle{font-weight:800;margin:7px 0;color:#e8f8fc}.rdesc{font-size:12px;color:#a9c8da;line-height:1.9}.risk{font-size:11px;color:#ffd198;margin:8px 0}
-.footnote{color:#87a9b2;font-size:11px;line-height:1.8}
-.report{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.evidence{background:#0c1928;border:1px solid #24495a;padding:11px;border-radius:10px;margin:8px 0;font-size:12px}
-.evtitle{font-weight:700;color:#dffcef;margin-bottom:5px}.evmeta{color:#adc4d6;font-size:11px;direction:ltr;text-align:left}
-a.cta{display:inline-flex;padding:11px 18px;border-radius:13px;background:#25dcb2;color:#06241b;font-weight:800;font-size:12px;margin-top:15px}
-ul{padding-right:22px;color:#bdd3df;font-size:13px;line-height:2.1}
-input[type=file]::file-selector-button{background:#20534d;color:#dcfff6;border:0;border-radius:8px;padding:7px;cursor:pointer}
-.footer{text-align:center;color:#799cac;font-size:12px;padding:30px}
-@media(max-width:1080px){.hero{grid-template-columns:1fr}.hero-art{display:none}.workspace{grid-template-columns:1fr 1fr}.report{grid-template-columns:1fr 1fr}}
-@media(max-width:800px){.workspace,.report{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.nav{padding:12px 15px}.nav-links{gap:5px}.nav-links a{font-size:10px;padding:6px}main{padding:20px 13px}.panel{padding:14px}.controls{grid-template-columns:1fr}}
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07131e">
+<meta name="description" content="TAJ Match Intelligence — پنج مسابقه آینده فوتبال، فرم اخیر تیم‌ها و تحلیل آماری در مرورگر، بدون نصب و بدون API key.">
+<title>TAJ | Football Match Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="./ui.css">
 </head>
 <body>
-<header><nav class="nav">
-<div class="brand"><span class="logo">T</span><span>TAJ <span style="color:#24e1b5">INTELLIGENCE</span></span></div>
-<div class="nav-links"><a href="#lab">Visual Lab</a><a href="#reports">Evidence Studio</a><a href="./viewer.html">Real Tracking Viewer</a><a target="_blank" rel="noopener" href="https://github.com/prestigegitserp/Taj_soccer_recommender">GitHub ↗</a></div>
-</nav></header>
-<main>
-<section class="hero">
-<div><div class="eyebrow">OPEN DATA  /  SPATIAL ANALYSIS  /  TACTICAL AI</div>
-<h1>فوتبال را <span>در لایه فضا</span> تحلیل کن.</h1>
-<p class="lede">فضاهای باز، کنترل احتمالی مناطق، آرایش تیم‌ها و پیشنهادهای تاکتیکی را در یک محیط تعاملی ببین. پردازش واقعی در Python و Colab انجام می‌شود؛ این صفحه نمایش و آزمایش سناریوهای بصری است.</p>
-<a class="cta" href="https://colab.research.google.com/github/prestigegitserp/Taj_soccer_recommender/blob/main/notebooks/Taj_Colab.ipynb" target="_blank" rel="noopener">↗ باز کردن نوت‌بوک Colab</a></div>
-<div class="hero-art"><strong>TAJ</strong><small>RESEARCH / INTERACTIVE VISUAL LAB</small></div>
-</section>
-<div class="banner">⚠️ این صفحه به‌طور پیش‌فرض از <b>بازیکنان و رویدادهای مصنوعی و شبیه‌سازی‌شده</b> استفاده می‌کند. شاخص‌ها و پیشنهادهای آن شاهد عملکرد هیچ تیم واقعی نیستند. فایل JSON خروجی Python را برای مشاهده گزارش مبتنی بر شواهد در بخش پایین بارگذاری کن.</div>
-<section class="stats" aria-label="Metrics">
-<div class="stat"><div class="k">Source</div><div class="v" style="font-size:20px;color:var(--gold)">SYNTHETIC</div><div class="tiny">Visual simulation only</div></div>
-<div class="stat"><div class="k">Active players</div><div class="v" id="numplayers">22</div><div class="tiny">11 × 2</div></div>
-<div class="stat"><div class="k">Selected minute</div><div class="v" id="minvalue">24′</div><div class="tiny">Artificial animation</div></div>
-<div class="stat"><div class="k">Spatial access</div><div class="v" id="access">—</div><div class="tiny">Heuristic, uncalibrated</div></div>
-</section>
-<section class="workspace" id="lab">
-<div class="panel">
-<div class="panel-head"><div><h2>🟢 Spatial Tactical Canvas</h2><div class="sub">حرکت بازیکنان، Heatmap و الگوهای فضایی ساختگی</div></div>
-<div class="tabs"><button class="tab on" id="heatBtn">HEATMAP</button><button class="tab" id="shapeBtn">FORMATION</button></div></div>
-<div class="pitch-wrap"><canvas id="pitch" width="1000" height="666" role="img" aria-label="Interactive football pitch with synthetic players"></canvas><div class="tip" id="tip"></div></div>
-<div class="legend">
-<span><i class="dot" style="background:var(--green)"></i> تیم میزبان</span><span><i class="dot" style="background:var(--blue)"></i> تیم میهمان</span><span><i class="dot" style="background:var(--gold)"></i> توپ</span><span>ارقام احتمال گل نیستند</span>
-</div>
-<div class="controls">
-<div><label for="timeline" class="field-label">زمان سناریو · <b id="clock">24:00</b></label><input id="timeline" type="range" min="0" max="90" value="24"></div>
-<div><label for="scenario" class="field-label">حالت آزمایشی تاکتیک</label>
-<select id="scenario"><option value="balanced">آرایش متعادل 4-3-3</option><option value="press">پرس بالا</option><option value="wide">حمله از کناره‌ها</option><option value="counter">بلوک دفاعی و ضدحمله</option></select></div>
-</div>
-<p class="footnote">حرکت اسلایدر، موقعیت بازیکنان مصنوعی را تغییر می‌دهد. برای مقایسه اثر سناریوها از تب‌های Heatmap و Formation استفاده کن.</p>
-</div>
-<aside>
-<div class="panel">
-<div class="panel-head"><h2>✦ Tactical Intelligence</h2><span class="pill">SIMULATION</span></div>
-<p class="intro">کارت‌ها با انتخاب سناریو تغییر می‌کنند. این‌ها فرضیه‌های آموزشی‌اند، نه توصیه تأییدشده برای مسابقه واقعی.</p>
-<div id="cards" aria-live="polite"></div>
-</div>
-<div class="panel"><h2>📍 Spatial reading</h2><p class="intro" id="insight">برای مشاهده توضیح، سناریو را تغییر بده یا روی زمین حرکت کن.</p>
-<div style="height:4px;border-radius:10px;background:linear-gradient(90deg,#759dff,#294f65,#1bdba8);margin-top:18px"></div></div>
-</aside>
-</section>
-<section class="report" id="reports">
-<div class="panel"><h2>📥 وارد کردن گزارش واقعی Python</h2>
-<p class="intro">فایل <code>report.json</code> که از دستور <code>taj analyze</code> یا داشبورد Python دریافت کرده‌ای را انتخاب کن. فایل فقط در مرورگر تو خوانده می‌شود؛ آپلود سروری وجود ندارد.</p>
-<input type="file" id="upload" accept=".json,application/json">
-<div class="footnote" id="uploadStatus" style="padding-top:12px">هنوز گزارشی بارگذاری نشده است.</div>
-</div>
-<div class="panel"><h2>🧾 Evidence-linked Report Viewer</h2><div id="evidence" class="intro">پس از بارگذاری فایل JSON، نوع داده، تعداد شواهد، فرضیه‌ها و توصیه‌ها در این قسمت نشان داده خواهند شد. نمودار بالایی با داده گزارش جایگزین نمی‌شود، زیرا JSON گزارش حاوی تمام مختصات نیست.</div></div>
-</section>
-<div class="footer">TAJ v0.2 · Python computes real tracking analysis · This GitHub Pages view is static and client-side · <a href="https://github.com/prestigegitserp/Taj_soccer_recommender">Open source</a></div>
+<div class="ambient ambientOne" aria-hidden="true"></div><div class="ambient ambientTwo" aria-hidden="true"></div>
+<header class="topbar">
+  <a class="brand" href="./" aria-label="TAJ home">
+    <span class="brandMark">T<span class="brandDot"></span></span>
+    <span><b>TAJ</b><small>MATCH INTELLIGENCE</small></span>
+  </a>
+  <nav class="navLinks" aria-label="Main navigation">
+    <a class="navCurrent" href="./">پنج بازی آینده</a>
+    <a href="./viewer.html">Tracking Viewer</a>
+    <a href="https://github.com/prestigegitserp/Taj_soccer_recommender" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+  </nav>
+  <div class="topStatus"><i id="statusPoint" class="statusPoint warn"></i><span id="statusLabel">در حال دریافت نتایج معتبر...</span></div>
+</header>
+<main class="container">
+  <section class="hero">
+    <div class="heroCopy">
+      <div class="eyebrow"><span class="eyebrowLine"></span> LIVE DATA · BROWSER COMPUTE · NO INSTALL</div>
+      <h1>فوتبال فردا را<br><em>از امروز بهتر بخوان.</em></h1>
+      <p class="lead">پنج مسابقه نزدیک، فرم واقعی تیم‌ها، برآورد آماری محتاطانه و فرضیه‌هایی برای بررسی تاکتیکی؛ بدون دانلود کد یا بازکردن Colab.</p>
+      <div class="heroActions">
+        <a href="#fixtures" class="primaryAction">دیدن پنج مسابقه <span>←</span></a>
+        <button id="refresh" class="secondaryAction" type="button"><span class="refreshGlyph">↻</span> به‌روزرسانی</button>
+      </div>
+    </div>
+    <div class="heroDisplay" aria-hidden="true">
+      <div class="radar"><div class="radarRing one"></div><div class="radarRing two"></div><div class="radarRing three"></div><div class="radarBeam"></div><div class="radarCenter"></div>
+        <div class="radarPing p1"></div><div class="radarPing p2"></div><div class="radarPing p3"></div>
+      </div>
+      <div class="heroDisplayTop">DATA / INFERENCE / EVIDENCE</div>
+      <div class="heroDisplayBottom"><span>LIVE FIXTURE ENGINE</span><span class="signal">● AUTO UPDATED</span></div>
+    </div>
+  </section>
+
+  <section class="metrics" aria-label="Dataset status">
+    <div class="metric"><span>بازی‌های موجود در داده</span><strong id="allCount">—</strong><small>نتایج و بازی‌های برنامه‌ریزی‌شده</small></div>
+    <div class="metric"><span>مسابقات منتخب پیش رو</span><strong id="fixtureCount">—</strong><small>همواره نزدیک‌ترین بازی‌های ثبت‌شده</small></div>
+    <div class="metric"><span>لیگ‌های قابل بررسی</span><strong id="leagueCount">۶</strong><small>رقابت‌های منتخب اروپایی</small></div>
+    <div class="metric"><span>آخرین داده معتبر</span><strong id="age" class="metricAge">در حال دریافت</strong><small>منبع عمومی · زمان‌بندی GitHub</small></div>
+  </section>
+
+  <div id="liveTicker" class="liveTicker" hidden></div>
+
+  <section class="dashboard" id="fixtures">
+    <div class="sectionHead">
+      <div><div class="sectionOverline">01 / UPCOMING MATCHES</div><h2>۵ مسابقه نزدیک</h2><p id="fixtureSubtitle">انتخاب خودکار نزدیک‌ترین بازی‌ها بر اساس برنامه ثبت‌شده</p></div>
+      <div class="filterRow" id="leagueTabs" role="group" aria-label="League">
+        <button type="button" class="current" data-league="all">همه لیگ‌ها</button>
+        <button type="button" data-league="eng.1">انگلیس</button>
+        <button type="button" data-league="esp.1">اسپانیا</button>
+        <button type="button" data-league="ger.1">آلمان</button>
+        <button type="button" data-league="ita.1">ایتالیا</button>
+        <button type="button" data-league="fra.1">فرانسه</button>
+        <button type="button" data-league="uefa.champions">اروپا</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div class="fixturesColumn">
+        <div class="matchGrid" id="matches" aria-live="polite">
+          <div class="loadingCard"><div class="loadingLine"></div><div class="loadingLine short"></div><div class="loadingLine"></div></div>
+          <div class="loadingCard"><div class="loadingLine"></div><div class="loadingLine short"></div><div class="loadingLine"></div></div>
+        </div>
+        <div class="sourceDisclosure">
+          <span class="disclosureIcon">ⓘ</span>
+          <div><strong>شفافیت داده و دقت تحلیل</strong><p id="dataDisclosure">این محصول داده‌های واقعی بازی را از منبع عمومی دریافت می‌کند. مدل‌های سبک در مرورگر اجرا می‌شوند. Tracking برای پنج بازی آینده در دسترس نیست؛ بنابراین ادعای Heatmap واقعی یا تاکتیک قطعی نداریم.</p></div>
+        </div>
+        <div class="researchLink">
+          <span class="researchIcon">◉</span>
+          <div><b>داده Tracking واقعیِ مسابقات تاریخی</b><p>تحلیل فضایی پیشرفته جداست، چون داده حرکت بازیکنان بازی‌های آینده رایگان و عمومی نیست.</p></div>
+          <a href="./viewer.html">ورود به Tracking Lab ↗</a>
+        </div>
+      </div>
+      <aside class="insightsColumn" aria-label="Match intelligence">
+        <div class="analysisPanel" id="intelligence">
+          <div class="loadingPanel"><div class="loadingLine"></div><div class="loadingLine short"></div><div class="loadingLine"></div><p>در حال آماده‌کردن تحلیل مسابقه...</p></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+  <footer><div class="footerBrand">TAJ <span>·</span> FOOTBALL INTELLIGENCE</div>
+    <div>داده: ESPN غیررسمی · تحلیل: مرورگر کاربر · هر امتیاز آماری صرفاً اکتشافی است.</div>
+    <a href="https://github.com/prestigegitserp/Taj_soccer_recommender" target="_blank" rel="noopener noreferrer">Open-source repository ↗</a>
+  </footer>
 </main>
-<script>
-(function(){
-"use strict";
-const C=document.getElementById("pitch"),ctx=C.getContext("2d"),tip=document.getElementById("tip");
-const timeline=document.getElementById("timeline"),scenario=document.getElementById("scenario");
-const state={view:"heat", minute:24, plan:"balanced",mouse:null};
-function pos(x,y){return [((x+52.5)/105)*C.width,((34-y)/68)*C.height]}
-function players(){
- const base=[[-45,0],[-30,-23],[-31,-8],[-31,8],[-30,23],[-10,-17],[-10,0],[-10,17],[16,-23],[21,0],[16,23]];
- const result=[];
- for(let ti=0;ti<2;ti++){
-  const side=ti===0?1:-1;
-  for(let i=0;i<11;i++){
-   let x=side*base[i][0],y=base[i][1];
-   const k=state.minute/9;
-   x+=Math.sin(k+i*1.27+ti)*2.4;y+=Math.cos(k/2+i*.8+ti)*1.2;
-   if(state.plan==="press"&&ti===0)x+=i===0?0:14;
-   if(state.plan==="counter"&&ti===0)x-=i===0?0:12;
-   if(state.plan==="wide"&&ti===0&&i>7)y*=1.3;
-   result.push({x:Math.max(-52,Math.min(52,x)),y:Math.max(-33,Math.min(33,y)),team:ti,id:i+1});
-  }
- }
- return result;
-}
-function accessAt(x,y,ps){
- let h=999,a=999;
- ps.forEach(p=>{const d=Math.hypot(p.x-x,p.y-y);if(p.team===0)h=Math.min(h,d);else a=Math.min(a,d)});
- const z=Math.max(-14,Math.min(14,(a-h)/7));
- return 1/(1+Math.exp(-z));
-}
-function draw(){
- const w=C.width,h=C.height;
- ctx.fillStyle="#0c382f";ctx.fillRect(0,0,w,h);
- for(let j=0;j<10;j++){ctx.fillStyle=j%2?"#ffffff05":"#0000000c";ctx.fillRect(j*w/10,0,w/10,h)}
- const ps=players();
- if(state.view==="heat"){
-  const sz=21;
-  for(let iy=0;iy<h;iy+=sz){for(let ix=0;ix<w;ix+=sz){
-   const x=(ix/w)*105-52.5,y=34-(iy/h)*68;
-   const p=accessAt(x,y,ps);ctx.fillStyle=p>.5?"rgba(28,220,170,"+(Math.abs(p-.5)*.61)+")":"rgba(115,146,255,"+(Math.abs(p-.5)*.7)+")";
-   ctx.fillRect(ix,iy,sz,sz);
-  }}
- }
- ctx.strokeStyle="#d1f4ddbc";ctx.lineWidth=2.2;ctx.strokeRect(12,12,w-24,h-24);
- ctx.beginPath();ctx.moveTo(w/2,12);ctx.lineTo(w/2,h-12);ctx.stroke();
- ctx.beginPath();ctx.arc(w/2,h/2,9.15/105*w,0,Math.PI*2);ctx.stroke();
- for(let t=0;t<2;t++){
-  const x0=t===0?12:w-12-16.5/105*w,box=16.5/105*w;
-  ctx.strokeRect(x0,h/2-20.16/68*h,box,40.32/68*h);
-  const sm=5.5/105*w;
-  ctx.strokeRect(t===0?12:w-12-sm,h/2-9.16/68*h,sm,18.32/68*h);
- }
- ps.forEach(p=>{
-  const [cx,cy]=pos(p.x,p.y);ctx.beginPath();ctx.fillStyle=p.team===0?"#22e7b6":"#86a7ff";
-  ctx.arc(cx,cy,14,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#eafff0";ctx.lineWidth=1.8;ctx.stroke();
-  ctx.fillStyle="#06111c";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold 15px Arial";
-  ctx.fillText(String(p.id),cx,cy+1);
- });
- const bx=state.plan==="counter"?-7:state.plan==="press"?17:5;
- const [bbx,bby]=pos(bx+Math.sin(state.minute/7)*6,Math.cos(state.minute/6)*13);
- ctx.beginPath();ctx.arc(bbx,bby,9,0,Math.PI*2);ctx.fillStyle="#f8c979";ctx.fill();ctx.strokeStyle="#fff";ctx.stroke();
- const p=accessAt(17,0,ps);
- document.getElementById("access").textContent=(p*100).toFixed(0)+"/100";
- document.getElementById("numplayers").textContent=ps.length;
- document.getElementById("minvalue").textContent=String(state.minute)+"′";
- document.getElementById("clock").textContent=String(state.minute).padStart(2,"0")+":00";
- if(state.mouse){
-  const m=state.mouse;
-  const [mx,my]=pos(m.x,m.y);
-  ctx.strokeStyle="#e6fffa55";ctx.beginPath();ctx.moveTo(mx,0);ctx.lineTo(mx,h);ctx.moveTo(0,my);ctx.lineTo(w,my);ctx.stroke();
- }
-}
-const plans={
- balanced:[["تعادل و پوشش نیم‌فضاها","حفظ فواصل خطوط و پوشش پاس‌های داخلی","جابجایی آهسته توپ می‌تواند پرس را فعال کند"],["استفاده از نفر سوم","جابه‌جایی توپ در کانال‌های میانی","فضای پشت مدافع کناری"]],
- press:[["پرس جهت‌دار","هدایت توپ به یک کناره و محدود کردن گزینه‌های پاس","فضای پشت خط اول پرس"],["Rest Defense","حفظ دو مدافع پوششی هنگام بازی رو به جلو","بازگشت دیرهنگام مدافعان"]],
- wide:[["ایجاد عرض هجومی","باز کردن خط دفاع حریف با حضور هم‌زمان در دو کناره","جدا شدن خط میانی از حمله"],["سوئیچ بازی","تغییر جهت حمله پس از فشرده شدن یک سمت","لو رفتن پاس بلند"]],
- counter:[["ضدحمله در فضای آزاد","بازی عمودی سریع پس از بازپس‌گیری توپ","کمبود پشتیبانی در فاز دوم"],["بلوک میانی فشرده","کاهش فاصله بین خطوط","کاهش فشار روی مدافع حریف"]]
-};
-function updateCards(){
- const box=document.getElementById("cards");box.replaceChildren();
- plans[state.plan].forEach((r,i)=>{
-  const c=document.createElement("article");c.className="reco";
-  const head=document.createElement("div");head.className="rhead";
-  const strong=document.createElement("strong");strong.textContent="گزینه "+(i+1);
-  const pill=document.createElement("span");pill.className="pill";pill.textContent="فرضیه آموزشی";
-  head.append(strong,pill);
-  const title=document.createElement("div");title.className="rtitle";title.textContent=r[0];
-  const desc=document.createElement("div");desc.className="rdesc";desc.textContent=r[1];
-  const risk=document.createElement("div");risk.className="risk";risk.textContent="ریسک: "+r[2];
-  c.append(head,title,desc,risk);box.append(c);
- });
- document.getElementById("insight").textContent="سناریو: "+scenario.options[scenario.selectedIndex].text+
- ". موقعیت‌های ساختگی تیم‌ها تغییر کرده‌اند. رنگ سبز دسترسی نسبی میزبان و رنگ آبی دسترسی نسبی میهمان را نشان می‌دهد. برای تحلیل واقعی به Tracking و شواهد زمانی نیاز است.";
-}
-document.getElementById("heatBtn").addEventListener("click",()=>{state.view="heat";document.getElementById("heatBtn").classList.add("on");document.getElementById("shapeBtn").classList.remove("on");draw()});
-document.getElementById("shapeBtn").addEventListener("click",()=>{state.view="shape";document.getElementById("shapeBtn").classList.add("on");document.getElementById("heatBtn").classList.remove("on");draw()});
-timeline.addEventListener("input",()=>{state.minute=Number(timeline.value);draw()});
-scenario.addEventListener("change",()=>{state.plan=scenario.value;updateCards();draw()});
-C.addEventListener("mousemove",e=>{
- const r=C.getBoundingClientRect(),rx=(e.clientX-r.left)/r.width,ry=(e.clientY-r.top)/r.height;
- state.mouse={x:rx*105-52.5,y:34-ry*68};const p=accessAt(state.mouse.x,state.mouse.y,players());
- tip.style.display="block";tip.style.left=Math.min(e.clientX-r.left+14,r.width-135)+"px";
- tip.style.top=Math.max(5,e.clientY-r.top-45)+"px";
- tip.textContent="x "+state.mouse.x.toFixed(1)+"m · y "+state.mouse.y.toFixed(1)+"m · Access "+p.toFixed(2);draw();
-});
-C.addEventListener("mouseleave",()=>{state.mouse=null;tip.style.display="none";draw()});
-const up=document.getElementById("upload");
-up.addEventListener("change",async()=>{
- const file=up.files[0];if(!file)return;
- try{
-  if(file.size>4e6)throw new Error("حداکثر اندازه فایل ۴ مگابایت است.");
-  const report=JSON.parse(await file.text());
-  if(!report||!String(report.schema_version).startsWith("1.")||!Array.isArray(report.findings)||!Array.isArray(report.recommendations))
-   throw new Error("ساختار JSON سازگار نیست؛ خروجی taj analyze را استفاده کن.");
-  const el=document.getElementById("evidence");el.replaceChildren();
-  const intro=document.createElement("p");intro.textContent="Match "+String(report.match_id)+" · Provider "+String(report.provider)+
-    " · Hypotheses "+report.findings.length+" · Plans "+report.recommendations.length+
-    (report.synthetic?" · SYNTHETIC":" · HISTORICAL TRACKING");
-  el.append(intro);
-  report.findings.slice(0,20).forEach(f=>{
-   const box=document.createElement("div");box.className="evidence";
-   const title=document.createElement("div");title.className="evtitle";title.textContent=String(f.statement_fa||"فرضیه فضایی");
-   const meta=document.createElement("div");meta.className="evmeta";meta.textContent=String(f.n_independent_windows)+" evidence windows | "+String(f.zone);
-   box.append(title,meta);el.append(box);
-  });
-  report.recommendations.slice(0,20).forEach(r=>{
-   const box=document.createElement("div");box.className="evidence";
-   const title=document.createElement("div");title.className="evtitle";title.textContent=String(r.title_fa||r.title);
-   const meta=document.createElement("div");meta.className="evmeta";meta.textContent="Relative priority "+r.priority+"/100 | "+(r.sample_windows||0)+" windows";
-   box.append(title,meta);el.append(box);
-  });
-  if(!report.findings.length&&!report.recommendations.length){const p=document.createElement("p");p.textContent="مدرک مستقل کافی در این تحلیل به‌دست نیامد؛ ادعایی نمایش داده نمی‌شود.";el.append(p);}
-  document.getElementById("uploadStatus").textContent="✅ گزارش محلی خوانده شد؛ داده به سرور ارسال نشد. نمودار بالا همچنان مصنوعی است.";
- }catch(e){document.getElementById("uploadStatus").textContent="❌ "+e.message;}
-});
-updateCards();draw();
-})();
-</script>
-</body></html>
+<script type="module" src="./app.mjs"></script>
+</body>
+</html>
