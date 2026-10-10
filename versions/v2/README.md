@@ -1,4 +1,4 @@
-# TAJ Football Intelligence — V2.0.0
+# TAJ Football Intelligence — V2.1.0
 
 **[V2 Live](https://prestigegitserp.github.io/Taj_soccer_recommender/v2/)** ·
 **[V2 Research](https://prestigegitserp.github.io/Taj_soccer_recommender/v2/research.html)** ·
@@ -49,3 +49,16 @@ LightGBM/Dixon-Coles challenge outputs.
 **Next research needs**: historical pre-match xG, lineups, team/player
 availability and tracking from sources with clear usage rights; larger
 cross-season holdouts; truly prospective timestamped predictions.
+
+## Prospective scientific ledger (2.1.0)
+
+`versions/v2/prospective.py` freezes actual future 1X2 probabilities before
+kickoff, with model SHA256 and first-recorded timestamp; then appends only
+final scores when ESPN marks the match completed.
+`docs/v2/data/prospective.json` exposes prediction timestamps, forecast
+vectors, and eventual actual outcomes. The GitHub workflow
+`.github/workflows/v2-prospective.yml` checks every three hours.
+
+The **2.0.0 trained model** is still unchanged. Prospective metrics MUST NOT
+be claimed before enough genuine match results have arrived.
+The old `v1.0.0` and original V2 `v2.0.0` branches remain frozen.

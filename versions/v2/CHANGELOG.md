@@ -1,5 +1,23 @@
 # TAJ V2 Changelog
 
+## 2.1.0 — 2026-10-10
+
+### Genuine prospective validation, before kick-off
+- New append-only research ledger in `docs/v2/data/prospective.json`.
+- Every prediction is captured at least 15 minutes before a real ESPN fixture's
+  scheduled kickoff, with source data timestamp, probabilities and SHA256 of
+  the exact production model; those probabilities are never replaced.
+- Verified final scores are attached when observed, while original predictions
+  remain frozen. Accuracy/Brier/Log Loss appear only after real finals exist.
+- A 3-hour GitHub Actions schedule and an independent immutable-timestamp
+  audit maintain the ledger; the browser still runs all interactive inference.
+- First executed prospective log: 97 genuine pre-kickoff fixture records,
+  with zero completed outcomes at time of the first log.
+- Expose real prospective status in the V2 research dashboard.
+- `v2.0.0` continues as an immutable release branch with the original
+  first-trained 56-feature forest. The model artifact's training version
+  remains `2.0.0` (the UI and research infrastructure are `2.1.0`).
+
 ## 2.0.0 — 2026-10-10
 
 ### Versioning and rollback
