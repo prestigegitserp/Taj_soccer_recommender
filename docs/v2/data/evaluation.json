@@ -1,0 +1,442 @@
+{
+  "schema": "taj-v2-evaluation-v1",
+  "version": "2.0.0",
+  "created_at": "2026-10-10T00:15:59.614901+00:00",
+  "sourced": "ESPN completed real match scores, no synthetic outcomes",
+  "raw_historical_games": 3836,
+  "eligible_games": 3504,
+  "out_of_sample_games": 1753,
+  "from": "2025-10-19T13:00:00Z",
+  "through": "2026-10-09T19:00:00Z",
+  "architecture": "V2 temporal 56-feature LightGBM/42-feature LightGBM + Dixon-Coles; validation-only champion gating",
+  "features": [
+    "league_home_goals",
+    "league_away_goals",
+    "league_home_win",
+    "league_draw",
+    "home_gf6",
+    "home_ga6",
+    "home_ppg6",
+    "home_n6",
+    "away_gf6",
+    "away_ga6",
+    "away_ppg6",
+    "away_n6",
+    "home_gf3",
+    "home_ga3",
+    "away_gf3",
+    "away_ga3",
+    "home_rest20",
+    "away_rest20",
+    "home_home_gf6",
+    "away_away_gf6",
+    "graph_home_rating",
+    "graph_away_rating",
+    "graph_rating_gap",
+    "graph_home_opp_rating",
+    "graph_away_opp_rating",
+    "graph_home_quality_form",
+    "graph_away_quality_form",
+    "graph_home_opp_goals_for",
+    "graph_away_opp_goals_for",
+    "graph_home_opp_goals_against",
+    "graph_away_opp_goals_against",
+    "graph_home_twohop",
+    "graph_away_twohop",
+    "graph_common_opponent_ratio",
+    "graph_common_opponent_count",
+    "graph_h2h_n",
+    "graph_h2h_home_points",
+    "graph_h2h_goal_diff",
+    "graph_home_distinct_opponents",
+    "graph_away_distinct_opponents",
+    "graph_home_recent_elo_trend",
+    "graph_away_recent_elo_trend",
+    "h_wgf",
+    "h_wga",
+    "h_wppg",
+    "h_clean",
+    "h_btts",
+    "h_goal_trend",
+    "a_wgf",
+    "a_wga",
+    "a_wppg",
+    "a_clean",
+    "a_btts",
+    "a_goal_trend",
+    "rest_gap",
+    "venue_form_gap"
+  ],
+  "folds": [
+    {
+      "fold": 1,
+      "train_n": 1402,
+      "validation_n": 349,
+      "test_n": 527,
+      "train_until": "2025-05-24T18:45:00Z",
+      "validation_until": "2025-10-19T12:00:00Z",
+      "test_from": "2025-10-19T13:00:00Z",
+      "test_through": "2026-01-03T20:05:00Z",
+      "selected_without_test_outcomes": "lgb42_mix0.5",
+      "valid_poisson": {
+        "n": 349,
+        "accuracy": 0.48997,
+        "correct": 171,
+        "brier": 0.62116,
+        "log_loss": 1.0356
+      },
+      "valid_selected": {
+        "n": 349,
+        "accuracy": 0.48997,
+        "correct": 171,
+        "brier": 0.61575,
+        "log_loss": 1.02778
+      },
+      "rho": -0.04,
+      "models": {
+        "v1_poisson": {
+          "n": 527,
+          "accuracy": 0.48387,
+          "correct": 255,
+          "brier": 0.62155,
+          "log_loss": 1.03353
+        },
+        "dixon_coles": {
+          "n": 527,
+          "accuracy": 0.48008,
+          "correct": 253,
+          "brier": 0.62194,
+          "log_loss": 1.03433
+        },
+        "lgb42": {
+          "n": 527,
+          "accuracy": 0.49336,
+          "correct": 260,
+          "brier": 0.61582,
+          "log_loss": 1.02771
+        },
+        "lgb56": {
+          "n": 527,
+          "accuracy": 0.50474,
+          "correct": 266,
+          "brier": 0.61855,
+          "log_loss": 1.03209
+        },
+        "v2_auto": {
+          "n": 527,
+          "accuracy": 0.51044,
+          "correct": 269,
+          "brier": 0.61452,
+          "log_loss": 1.02485
+        }
+      },
+      "g42_best_iteration": 42,
+      "g56_best_iteration": 42
+    },
+    {
+      "fold": 2,
+      "train_n": 1927,
+      "validation_n": 351,
+      "test_n": 523,
+      "train_until": "2025-11-08T17:30:00Z",
+      "validation_until": "2026-01-03T20:05:00Z",
+      "test_from": "2026-01-04T11:30:00Z",
+      "test_through": "2026-03-11T17:45:00Z",
+      "selected_without_test_outcomes": "lgb42_mix0.75",
+      "valid_poisson": {
+        "n": 351,
+        "accuracy": 0.47293,
+        "correct": 166,
+        "brier": 0.62467,
+        "log_loss": 1.03824
+      },
+      "valid_selected": {
+        "n": 351,
+        "accuracy": 0.50712,
+        "correct": 178,
+        "brier": 0.61613,
+        "log_loss": 1.02624
+      },
+      "rho": 0.0,
+      "models": {
+        "v1_poisson": {
+          "n": 523,
+          "accuracy": 0.47992,
+          "correct": 251,
+          "brier": 0.61652,
+          "log_loss": 1.03024
+        },
+        "dixon_coles": {
+          "n": 523,
+          "accuracy": 0.47992,
+          "correct": 251,
+          "brier": 0.61652,
+          "log_loss": 1.03024
+        },
+        "lgb42": {
+          "n": 523,
+          "accuracy": 0.47228,
+          "correct": 247,
+          "brier": 0.63137,
+          "log_loss": 1.04853
+        },
+        "lgb56": {
+          "n": 523,
+          "accuracy": 0.4761,
+          "correct": 249,
+          "brier": 0.62589,
+          "log_loss": 1.04046
+        },
+        "v2_auto": {
+          "n": 523,
+          "accuracy": 0.48566,
+          "correct": 254,
+          "brier": 0.62443,
+          "log_loss": 1.03909
+        }
+      },
+      "g42_best_iteration": 55,
+      "g56_best_iteration": 46
+    },
+    {
+      "fold": 3,
+      "train_n": 2448,
+      "validation_n": 353,
+      "test_n": 703,
+      "train_until": "2026-01-25T13:00:00Z",
+      "validation_until": "2026-03-11T17:45:00Z",
+      "test_from": "2026-03-11T20:00:00Z",
+      "test_through": "2026-10-09T19:00:00Z",
+      "selected_without_test_outcomes": "v1_poisson",
+      "valid_poisson": {
+        "n": 353,
+        "accuracy": 0.47309,
+        "correct": 167,
+        "brier": 0.61753,
+        "log_loss": 1.03001
+      },
+      "valid_selected": {
+        "n": 353,
+        "accuracy": 0.46742,
+        "correct": 165,
+        "brier": 0.61698,
+        "log_loss": 1.02898
+      },
+      "rho": 0.0,
+      "models": {
+        "v1_poisson": {
+          "n": 703,
+          "accuracy": 0.46799,
+          "correct": 329,
+          "brier": 0.63221,
+          "log_loss": 1.04921
+        },
+        "dixon_coles": {
+          "n": 703,
+          "accuracy": 0.46799,
+          "correct": 329,
+          "brier": 0.63221,
+          "log_loss": 1.04921
+        },
+        "lgb42": {
+          "n": 703,
+          "accuracy": 0.47511,
+          "correct": 334,
+          "brier": 0.62809,
+          "log_loss": 1.04432
+        },
+        "lgb56": {
+          "n": 703,
+          "accuracy": 0.47511,
+          "correct": 334,
+          "brier": 0.62717,
+          "log_loss": 1.04293
+        },
+        "v2_auto": {
+          "n": 703,
+          "accuracy": 0.46799,
+          "correct": 329,
+          "brier": 0.63221,
+          "log_loss": 1.04921
+        }
+      },
+      "g42_best_iteration": 42,
+      "g56_best_iteration": 31
+    }
+  ],
+  "overall": {
+    "v1_poisson": {
+      "n": 1753,
+      "accuracy": 0.47633,
+      "correct": 835,
+      "brier": 0.62433,
+      "log_loss": 1.03884
+    },
+    "dixon_coles": {
+      "n": 1753,
+      "accuracy": 0.47519,
+      "correct": 833,
+      "brier": 0.62444,
+      "log_loss": 1.03908
+    },
+    "lgb42": {
+      "n": 1753,
+      "accuracy": 0.47975,
+      "correct": 841,
+      "brier": 0.62538,
+      "log_loss": 1.04058
+    },
+    "lgb56": {
+      "n": 1753,
+      "accuracy": 0.48431,
+      "correct": 849,
+      "brier": 0.6242,
+      "log_loss": 1.03894
+    },
+    "v2_auto": {
+      "n": 1753,
+      "accuracy": 0.48602,
+      "correct": 852,
+      "brier": 0.62457,
+      "log_loss": 1.03886
+    }
+  },
+  "per_league": {
+    "eng.1": {
+      "count": 345,
+      "v1_poisson": {
+        "n": 345,
+        "accuracy": 0.43188,
+        "correct": 149,
+        "brier": 0.659,
+        "log_loss": 1.08694
+      },
+      "v2_auto": {
+        "n": 345,
+        "accuracy": 0.44928,
+        "correct": 155,
+        "brier": 0.65587,
+        "log_loss": 1.08205
+      }
+    },
+    "esp.1": {
+      "count": 356,
+      "v1_poisson": {
+        "n": 356,
+        "accuracy": 0.48034,
+        "correct": 171,
+        "brier": 0.62002,
+        "log_loss": 1.03345
+      },
+      "v2_auto": {
+        "n": 356,
+        "accuracy": 0.49719,
+        "correct": 177,
+        "brier": 0.62159,
+        "log_loss": 1.03617
+      }
+    },
+    "fra.1": {
+      "count": 279,
+      "v1_poisson": {
+        "n": 279,
+        "accuracy": 0.44444,
+        "correct": 124,
+        "brier": 0.63167,
+        "log_loss": 1.0478
+      },
+      "v2_auto": {
+        "n": 279,
+        "accuracy": 0.46237,
+        "correct": 129,
+        "brier": 0.63238,
+        "log_loss": 1.04807
+      }
+    },
+    "ger.1": {
+      "count": 273,
+      "v1_poisson": {
+        "n": 273,
+        "accuracy": 0.50549,
+        "correct": 138,
+        "brier": 0.60509,
+        "log_loss": 1.01421
+      },
+      "v2_auto": {
+        "n": 273,
+        "accuracy": 0.50183,
+        "correct": 137,
+        "brier": 0.6075,
+        "log_loss": 1.01689
+      }
+    },
+    "ita.1": {
+      "count": 357,
+      "v1_poisson": {
+        "n": 357,
+        "accuracy": 0.4986,
+        "correct": 178,
+        "brier": 0.61831,
+        "log_loss": 1.02923
+      },
+      "v2_auto": {
+        "n": 357,
+        "accuracy": 0.493,
+        "correct": 176,
+        "brier": 0.62191,
+        "log_loss": 1.03506
+      }
+    },
+    "uefa.champions": {
+      "count": 143,
+      "v1_poisson": {
+        "n": 143,
+        "accuracy": 0.52448,
+        "correct": 75,
+        "brier": 0.58882,
+        "log_loss": 0.98974
+      },
+      "v2_auto": {
+        "n": 143,
+        "accuracy": 0.54545,
+        "correct": 78,
+        "brier": 0.5805,
+        "log_loss": 0.97484
+      }
+    }
+  },
+  "paired_95pct": {
+    "delta_brier": 0.000245,
+    "ci_95": [
+      -0.003294,
+      0.004224
+    ],
+    "paired_by": "UTC match day",
+    "bootstrap_draws": 1200,
+    "significant_95": false
+  },
+  "production_forest": {
+    "file": "models/forest.json",
+    "tree_count": 165,
+    "features": 56,
+    "temperature": 1.2,
+    "rho": -0.04,
+    "ensemble_weight": 0.75,
+    "python_js_numerical_max_error": 1.2364231860573227e-10,
+    "trained_until": "2026-10-09T19:00:00Z",
+    "tuned_from": "2026-04-12T13:30:00Z",
+    "tuned_through": "2026-10-09T19:00:00Z"
+  },
+  "research_warning": "Architecture iterated after seeing V1 backtest; not a pristine preregistered blind benchmark.",
+  "promote_for_accuracy": false,
+  "explanations": [
+    "Test games never in gradient boosting fit or validation for their own fold",
+    "Prediction features use finished games strictly BEFORE target kickoff",
+    "Non-overlapping walkforward test folds; model reinitialized every fold",
+    "Weights/calibration chosen on validation only; reported CI paired by calendar day",
+    "Current registered rosters NOT used for historical lineup reconstruction",
+    "Retrospective public ESPN snapshots, not prospective logged live forecasts",
+    "Raw historical real data excludes live injury availability and tracking",
+    "V2 experimental tree forest is visible, yet conservative Poisson reference stays available"
+  ]
+}
