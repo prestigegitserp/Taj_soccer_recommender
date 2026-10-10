@@ -4,6 +4,34 @@
 
 ### [🌐 Open TAJ — five upcoming matches & instant browser analysis](https://prestigegitserp.github.io/Taj_soccer_recommender/)
 
+### [🔬 Audited walk-forward backtest — 1,753 REAL unseen football matches](https://prestigegitserp.github.io/Taj_soccer_recommender/backtest.html)
+
+**Important correction to the earlier single-window model comparison:** three independent,
+expanding-window retrain/validation/test runs on 1,753 genuine completed fixtures
+(2025-10-19 to 2026-10-09) do **not** establish graph AI superiority:
+
+| Model | Correct 1X2 | Brier ↓ | Log Loss ↓ |
+| --- | ---: | ---: | ---: |
+| Poisson | **47.63% (835/1,753)** | **0.62433** | **1.03884** |
+| Graph neural 42-feature | 47.12% (826/1,753) | 0.63126 | 1.04883 |
+| Graph + Poisson validation-selected ensemble | 47.12% (826/1,753) | 0.62523 | 1.03949 |
+| Base neural 20-feature | 46.61% (817/1,753) | 0.63046 | 1.04803 |
+
+The paired day-block bootstrap 95% CI for **ensemble Brier minus Poisson Brier**
+is **[-0.00341, +0.00514]**, so the difference is not statistically resolved.
+Unlike the previous 526-match one-off holdout, this result covers three disjoint
+historical test periods, each with newly trained models and validation-only
+calibration/ensemble weighting. The probabilities for every unseen match
+are saved and the independent audit recomputes scores directly from final
+scorelines. This is retrospective walk-forward testing, **not live prospective
+predictions logged before kick-off**. Details:
+[Research Lab](https://prestigegitserp.github.io/Taj_soccer_recommender/backtest.html) ·
+[JSON evaluation](docs/data/backtest.json) ·
+[1,753 match-level predictions](training/backtest-predictions.json) ·
+[reproducible procedure](scripts/backtest_walkforward.py).
+
+
+
 ![CI](https://github.com/prestigegitserp/Taj_soccer_recommender/actions/workflows/ci.yml/badge.svg)
 ![Fixtures auto-refresh](https://github.com/prestigegitserp/Taj_soccer_recommender/actions/workflows/fixtures.yml/badge.svg)
 
