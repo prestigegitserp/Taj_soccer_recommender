@@ -12,6 +12,9 @@ on:
       - "docs/neural-ui.mjs"
       - "docs/models/model-card.json"
       - "docs/models/football_1x2.tflite"
+      - "docs/backtest.html"
+      - "docs/backtest-ui.mjs"
+      - "docs/data/backtest.json"
       - "tests/e2e_browser.mjs"
       - ".github/workflows/browser-e2e.yml"
   workflow_dispatch:
