@@ -3,12 +3,12 @@
  * The 56-feature vector is computed in this worker from REAL, finished prior
  * matches. No model inference requests to any server.
  */
-import {v2Vector} from "./features.mjs";
+import {v2Vector,V2_NAMES} from "./features.mjs";
 import {graphNeighbors} from "../graph-features.mjs";
 const max=(a,b)=>a>b?a:b;
 const min=(a,b)=>a<b?a:b;
 const send=(type,obj={})=>self.postMessage({type,...obj});
-let history=null,model=null,report=null,latest=null;
+let history=null,model=null,report=null,initPromise=null;
 function softmax(values){
   const m=Math.max(...values);
   const v=values.map(x=>Math.exp(x-m));
@@ -72,6 +72,8 @@ function sourceArchive(payload){
 }
 async function init(){
   if(model&&history&&report)return;
+  if(initPromise)return initPromise;
+  initPromise=(async()=>{
   send("status",{message:"در حال بارگیری آرشیو واقعی مسابقات و مدل آموزش‌دیده..."});
   const [fm,fh,fr]=await Promise.all([
     fetch("./models/forest.json",{cache:"force-cache"}),
@@ -80,13 +82,16 @@ async function init(){
   ]);
   if(!fm.ok||!fh.ok||!fr.ok)throw Error("V2 model artifacts are not published");
   const [forest,archive,evalReport]=await Promise.all([fm.json(),fh.json(),fr.json()]);
-  if(forest.schema!=="taj-v2-lgbm-v1"||forest.features.length!==56
+  if(forest.schema!=="taj-v2-lgbm-v1"||JSON.stringify(forest.features)!==JSON.stringify(V2_NAMES)
      ||archive.schema!=="taj-v2-history-v1"||evalReport.schema!=="taj-v2-evaluation-v1")
     throw Error("V2 model, history and evaluation version mismatch");
   model=forest;history=sourceArchive(archive);report=evalReport;
   send("ready",{metrics:report.overall,confidence:report.paired_95pct,
     promoted:report.promote_for_accuracy,rawHistory:history.size,
     production:report.production_forest});
+  })();
+  try{await initPromise;}
+  catch(err){initPromise=null;throw err;}
 }
 self.onmessage=async ({data})=>{
   const message=data||{};
