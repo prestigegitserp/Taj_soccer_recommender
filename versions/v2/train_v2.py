@@ -136,7 +136,7 @@ def fit_boost(X,y,trainEnd,valEnd,kickoffs,dim,leaves=7,seed=SEED):
     return model
 def save_forest(model,features,temperature):
     booster=model.booster_
-    dump=booster.dump_model(num_iteration=model.best_iteration_)
+    dump=booster.dump_model(num_iteration=booster.current_iteration())
     def convert(node):
         if "leaf_value" in node:return {"v":round(float(node["leaf_value"]),10)}
         if node.get("decision_type")!="<=":raise RuntimeError("Non-numeric LightGBM split")
@@ -288,7 +288,7 @@ def holdout():
     production.fit(x[:,:56],y,sample_weight=weights)
     # No early stop in final refit: set best_iteration_ implicitly via full
     # n_estimators, rather than accessing an unset sklearn property.
-    production.best_iteration_=full_params["n_estimators"]
+    # All final-refit trees are used; LightGBM best_iteration_ is read-only.
     export=save_forest(production,NAMES,production_temp)
     export["production_rho"]=production_rho
     export["production_weight"]=production_weight
