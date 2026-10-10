@@ -30,7 +30,7 @@ jobs:
       - name: Install reproducible CPU-only research environment
         run: |
           python -m pip install --upgrade pip
-          python -m pip install "numpy>=1.26,<2.2" "tensorflow-cpu==2.19.1" "lightgbm==4.6.0"
+          python -m pip install "numpy>=1.26,<2.2" "tensorflow-cpu==2.19.1" "lightgbm==4.6.0" "scikit-learn==1.6.1"
       - name: Train challengers on REAL ESPN historic outcomes and three unseen forward test folds
         env:
           TF_CPP_MIN_LOG_LEVEL: '2'
