@@ -3,14 +3,14 @@
  * All event timestamps precede the target fixture. Registered rosters are NOT
  * used as historical features because current membership leaks transfers.
  */
-import {featuresFor} from "../football-features.mjs";
-import {buildGraph} from "../graph-features.mjs";
+import {featuresFor,FEATURE_NAMES} from "../football-features.mjs";
+import {buildGraph,GRAPH_NAMES} from "../graph-features.mjs";
 export const EXTRA_NAMES=[
  "h_wgf","h_wga","h_wppg","h_clean","h_btts","h_goal_trend",
  "a_wgf","a_wga","a_wppg","a_clean","a_btts","a_goal_trend",
  "rest_gap","venue_form_gap",
 ];
-export const V2_NAMES=[...Array.from({length:42},(_,i)=>i),...EXTRA_NAMES];
+export const V2_NAMES=[...FEATURE_NAMES,...GRAPH_NAMES,...EXTRA_NAMES];
 function extras(game,previous){
   const cutoff=Date.parse(game.kickoff);
   if(!Number.isFinite(cutoff))return null;
