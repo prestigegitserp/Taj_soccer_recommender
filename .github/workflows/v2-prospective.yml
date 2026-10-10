@@ -1,0 +1,58 @@
+name: V2 prospective pre-kickoff prediction ledger
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "versions/v2/prospective.py"
+      - ".github/workflows/v2-prospective.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "13 */3 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: taj-v2-prospective-ledger
+  cancel-in-progress: false
+
+jobs:
+  log-real-predictions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install small numerical dependency (no ML training)
+        run: python -m pip install "numpy>=1.26,<2.2"
+      - name: Timestamp and LOCK genuine pre-kickoff predictions
+        run: python versions/v2/prospective.py
+      - name: Audit original time and probability normalization
+        run: |
+          python - <<'PY'
+          import json, datetime
+          p=json.load(open("docs/v2/data/prospective.json"))
+          assert p["schema"]=="taj-v2-prospective-v1"
+          for key,m in p["games"].items():
+              t=lambda s:datetime.datetime.fromisoformat(s.replace("Z","+00:00"))
+              assert t(m["first_logged_at"])+datetime.timedelta(minutes=15)<t(m["kickoff"])
+              for name,prob in m["probabilities"].items():
+                  assert len(prob)==3 and abs(sum(prob)-1)<1e-6
+              if "final" in m:
+                  assert m["final"]["outcome"] in (0,1,2)
+          print("V2 prospective live predictions, locked pre-kickoff and final labels PASS")
+          PY
+      - name: Publish updated real prediction / outcome ledger
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git reset --mixed origin/main
+          git add -f docs/v2/data/prospective.json
+          if ! git diff --cached --quiet; then
+            git commit -m "observations(v2): append immutable before-kickoff predictions and verified final outcomes"
+            git push origin HEAD:main
+          fi
