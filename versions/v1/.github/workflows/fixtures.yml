@@ -1,0 +1,57 @@
+name: Refresh public football fixtures and publish site
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build_public_feed.py'
+      - 'scripts/build_match_knowledge.py'
+      - '.github/workflows/fixtures.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  refresh-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch actual upcoming fixtures and latest completed results
+        run: python scripts/build_public_feed.py
+      - name: Collect real squad and recent shot/possession evidence
+        run: python scripts/build_match_knowledge.py
+      - name: Commit verified public feed and provenance-rich match evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git reset --mixed origin/main
+          git add -f docs/data/feed.json docs/data/match-knowledge.json training/knowledge-cache.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: update real fixtures, squads and matchup stats [skip ci]"
+            git push origin HEAD:main
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deployment
+        uses: actions/deploy-pages@v4

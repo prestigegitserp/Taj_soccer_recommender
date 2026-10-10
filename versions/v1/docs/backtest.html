@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071b22">
+  <title>TAJ Research Lab — آزمون واقعی پیش‌بینی‌ها</title>
+  <meta name="description" content="Transparent 3-fold out-of-sample football backtest, all results from actual ESPN finished games, paired Brier confidence and audited model performance.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}
+    :root{color-scheme:dark;font-family:Vazirmatn,Tahoma,sans-serif;background:#091b23;color:#e8faf7}
+    body{margin:0;line-height:1.9;background:radial-gradient(ellipse at 40% 0%,#19443e 0%,#0b222c 39%,#07151e 85%);min-height:100vh}
+    a{color:#8cf7d2}
+    .container{width:min(1240px,calc(100% - 36px));margin:0 auto}
+    header{border-bottom:1px solid #28434a;background:#0c2028c9;backdrop-filter:blur(12px)}
+    .topbar{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .logo{font-family:"Space Grotesk",sans-serif;font-size:27px;letter-spacing:2px;color:#75e8b8;font-weight:700;text-decoration:none}
+    .links{display:flex;gap:17px;font-size:12px;flex-wrap:wrap}
+    .links a{text-decoration:none;color:#c1d9d5}.links a:hover{color:#8ef5c9}
+    .hero{padding:55px 0 30px;max-width:960px}
+    .eyebrow{font-family:"Space Grotesk",sans-serif;color:#70f1c4;font-weight:700;letter-spacing:2px;font-size:12px}
+    h1{font-size:clamp(28px,4vw,51px);line-height:1.48;margin:13px 0;color:#f3fffc;letter-spacing:-.7px}
+    h1 em{font-style:normal;color:#7deeca}
+    .intro{color:#b2cbd0;font-size:14px;max-width:820px}
+    .info{font-size:12px;color:#9eb7be;margin-top:12px}
+    #error{color:#f7b9a6}
+    .section{border:1px solid #35545b;background:#102a33e6;border-radius:20px;padding:24px;margin:20px 0;overflow:hidden}
+    .section h2{font-size:18px;margin:0 0 13px;color:#effff7}
+    .subtitle{color:#9fbfc4;font-size:12px;margin:0 0 18px}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:20px 0}
+    .metric{background:linear-gradient(145deg,#163d3e,#102c35);border:1px solid #42665e;border-radius:17px;padding:20px;min-width:0}
+    .metric small{color:#acd0ca;font-size:11px;display:block}.metric strong{font-family:"Space Grotesk",Vazirmatn,sans-serif;font-size:clamp(23px,3vw,36px);line-height:1.55;display:block;direction:ltr;text-align:right;color:#78efbd;white-space:nowrap}
+    .metric span{font-size:10px;color:#9bb7b7}
+    .tablewrap{width:100%;overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:700px;text-align:right;font-size:12px}
+    th{text-align:right;color:#9fd0ca;font-weight:600;font-size:11px;border-bottom:1px solid #406469;padding:13px 9px}
+    td{border-bottom:1px solid #274650;padding:12px 9px;color:#d6e8e6}
+    tr:last-child td{border:0}
+    td.ltr,th.ltr{direction:ltr;text-align:left;font-variant-numeric:tabular-nums}
+    tr.winner td{background:#1a514638;color:#a4f7c5}
+    .tag{display:inline-block;border-radius:30px;border:1px solid #5c9b87;color:#8df5c6;padding:1px 9px;font-size:10px}
+    .bars{display:grid;gap:17px;margin-top:15px}
+    .barrow{display:grid;grid-template-columns:135px minmax(0,1fr) 65px;gap:14px;align-items:center;font-size:12px}
+    .track{height:17px;border-radius:15px;background:#213f48;overflow:hidden}
+    .fill{height:100%;border-radius:15px;background:linear-gradient(90deg,#268d77,#72f5b9)}
+    .barrow strong{font:700 13px "Space Grotesk",sans-serif;direction:ltr;text-align:left}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .ci{border:1px solid #426d67;background:#173d3d;padding:20px;border-radius:14px}
+    .ci strong{font-family:"Space Grotesk",sans-serif;font-size:25px;display:block;color:#a3f2c2;direction:ltr;text-align:right}
+    .ci p{font-size:12px;color:#b6d6d1;margin:6px 0}
+    .ci.warning{border-color:#957052;background:#3e342b}
+    .ci.warning strong{color:#f9d0a1}
+    .ci.ok{border-color:#58b28d}
+    .calibration{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:12px}
+    .calItem{border:1px solid #36565d;padding:13px 8px;border-radius:11px;font-size:10px;min-width:0}
+    .calItem b{font:700 17px "Space Grotesk",sans-serif;display:block;color:#8ae6c2;direction:ltr;text-align:right}
+    .calItem span{color:#a9c4c6}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .fold{background:#14333c;border:1px solid #335965;border-radius:14px;padding:16px}
+    .fold h3{font-size:16px;margin:0 0 10px}.fold p{font-size:11px;color:#aec8ca}
+    .fold .datum{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #31545b;padding-top:7px;margin-top:7px;font-size:12px}
+    .fold .datum strong{direction:ltr;font-family:"Space Grotesk";color:#8cf2c7}
+    .note{font-size:12px;line-height:2.2;color:#b7ccce}
+    footer{margin:35px 0;padding:22px 0;font-size:11px;color:#94b1b9;border-top:1px solid #2b4850}
+    .pulse{animation:pulse 1.5s infinite alternate}@keyframes pulse{to{opacity:.4}}
+    @media(max-width:850px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.cards{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+    @media(max-width:500px){.container{width:min(100% - 22px,1240px)}.section{padding:16px}.metric{padding:13px}.barrow{grid-template-columns:90px minmax(0,1fr) 53px;gap:7px;font-size:10px}.calibration{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{align-items:start;padding:12px 0;flex-direction:column;gap:4px}.links{gap:12px}}
+    @media(prefers-reduced-motion:reduce){.pulse{animation:none}}
+  </style>
+</head>
+<body>
+<header><div class="container topbar">
+<a class="logo" href="./">TAJ<span style="color:#c0dad3;font-size:12px;letter-spacing:0"> · RESEARCH LAB</span></a>
+<nav class="links"><a href="./">داشبورد زنده</a><a href="./#graphExplorerPanel">گراف رقبا</a><a href="https://github.com/prestigegitserp/Taj_soccer_recommender/tree/main/scripts">کد تحلیل ↗</a></nav>
+</div></header>
+<main class="container">
+  <section class="hero">
+    <div class="eyebrow">UNSEEN MATCHES · WALK-FORWARD · REPRODUCIBLE</div>
+    <h1>حالا مدل‌ها را با <em>جواب واقعی</em> محک بزن.</h1>
+    <p class="intro">در سه دوره تاریخی متفاوت، از اول آموزش می‌دهیم و روی مسابقاتی که مدل هنوز ندیده پیش‌بینی می‌کنیم. نه نتایج ساختگی، نه انتخاب بازی‌های دلخواه، نه گزارش دقت روی داده آموزش.</p>
+    <div class="info" id="sourceInfo"><span class="pulse">در حال خواندن گزارش بک‌تست واقعی...</span></div>
+    <div id="error" role="alert"></div>
+  </section>
+  <section class="metrics" id="keyMetrics" aria-label="شاخص‌های بک‌تست">
+    <div class="metric"><small>نمونه‌های خارج از آموزش</small><strong>—</strong></div>
+    <div class="metric"><small>دقت مدل ترکیبی</small><strong>—</strong></div>
+    <div class="metric"><small>Brier مدل ترکیبی</small><strong>—</strong></div>
+    <div class="metric"><small>تفاوت Brier نسبت به Poisson</small><strong>—</strong></div>
+  </section>
+  <section class="section">
+    <h2>مقایسه عادلانه مدل‌ها روی همان مسابقات</h2>
+    <p class="subtitle">Accuracy یعنی درصد انتخاب درست نتیجه ۱×۲. در Brier و Log Loss مقدار کمتر بهتر است.</p>
+    <div class="tablewrap"><table id="modelTable">
+      <thead><tr><th>مدل</th><th class="ltr">Accuracy</th><th class="ltr">Brier ↓</th><th class="ltr">Log Loss ↓</th><th class="ltr">پیش‌بینی درست</th></tr></thead>
+      <tbody><tr><td colspan="5">در حال دریافت داده واقعی...</td></tr></tbody>
+    </table></div>
+    <div id="modelBars" class="bars"></div>
+  </section>
+  <div class="two">
+    <section class="section">
+      <h2>آیا برتری مدل از نظر آماری قابل اتکا است؟</h2>
+      <p class="subtitle">اختلاف Brier مدل ترکیبی منهای Poisson؛ فاصله اطمینان با Bootstrap دسته‌ای بر اساس روز بازی.</p>
+      <div id="uncertainty"></div>
+    </section>
+    <section class="section">
+      <h2>آیا احتمال‌های مدل قابل اعتمادند؟</h2>
+      <p class="subtitle">برای پیش‌بینی‌هایی با اعتماد ۵۰٪، چند درصد واقعاً درست بودند؟</p>
+      <div id="calibration" class="calibration"></div>
+    </section>
+  </div>
+  <section class="section">
+    <h2>سه پنجره تاریخی؛ سه آموزش مستقل</h2>
+    <p class="subtitle">مدل در هر پنجره فقط داده‌های قبلی را می‌بیند. وزن Ensemble و تنظیمات از اعتبارسنجیِ قبل از آزمون انتخاب می‌شوند.</p>
+    <div id="foldCards" class="cards"></div>
+  </section>
+  <section class="section">
+    <h2>عملکرد در رقابت‌های مختلف</h2>
+    <p class="subtitle">هر ردیف نتیجه واقعی بازی‌های همان لیگ در بخش‌های آزمون است، نه نمونه‌های آموزش.</p>
+    <div class="tablewrap"><table id="leagueTable"><thead><tr><th>لیگ</th><th class="ltr">تعداد بازی</th><th class="ltr">Accuracy ترکیبی</th><th class="ltr">Brier ترکیبی</th><th class="ltr">Brier Poisson</th></tr></thead><tbody></tbody></table></div>
+  </section>
+  <section class="section">
+    <h2>حد و مرز این آزمایش</h2>
+    <div id="limitations" class="note">در انتظار روش‌شناسی...</div>
+    <p class="note">کد مستقل: <a href="https://github.com/prestigegitserp/Taj_soccer_recommender/blob/main/scripts/backtest_walkforward.py">بک‌تست قابل بازتولید</a> · <a href="https://github.com/prestigegitserp/Taj_soccer_recommender/blob/main/training/backtest-predictions.json">احتمالات تک‌تک مسابقات واقعی</a> · <a href="./data/backtest.json">گزارش JSON کامل</a></p>
+  </section>
+</main>
+<footer class="container">TAJ · REAL FOOTBALL EVIDENCE · ON-DEVICE INFERENCE · RESEARCH-ONLY FORECASTS</footer>
+<script type="module" src="./backtest-ui.mjs"></script>
+</body></html>
