@@ -20,7 +20,14 @@
 <div class="tableWrap"><table><thead><tr><th>مدل</th><th>انتخاب درست</th><th>Accuracy</th><th>Brier ↓</th><th>Log Loss ↓</th></tr></thead><tbody id="scoreBody"></tbody></table></div></section>
 <section class="section"><div class="heading"><div><div class="overline">02 · STRICT WALK FORWARD</div><h2>سه بار آموزش مجدد، سه بازه آزمون مستقل</h2><p>آزمون هر پنجره هرگز برای انتخاب مدل یا تنظیم پارامترهای همان پنجره استفاده نمی‌شود.</p></div></div><div id="folds" class="v2Folds"></div></section>
 <section class="section"><div class="heading"><div><div class="overline">03 · LEAGUE STABILITY</div><h2>مقایسه در شش لیگ</h2></div></div><div class="tableWrap"><table><thead><tr><th>رقابت</th><th>تعداد بازی</th><th>دقت V2</th><th>Brier V2</th><th>Brier Poisson</th></tr></thead><tbody id="leagueBody"></tbody></table></div></section>
-<section class="section"><div class="heading"><div><div class="overline">04 · AUDITABILITY & SAFETY</div><h2>پروتکل و حدود علمی</h2></div></div><div id="method" class="methodBox"></div><p class="footnote">بدون اطلاعات xG و ترکیب تاریخی تأیید‌شده نمی‌توان ادعا کرد مدل تفاوت عملکرد بازیکنان را در گذشته آموخته است. استفاده از فهرست فعلی برای گذشته باعث نشت داده می‌شود.</p></section>
+<section class="section" id="prospective">
+<div class="heading"><div><div class="overline">04 · REAL-TIME SCIENTIFIC LEDGER</div><h2>آزمون آینده‌نگر؛ ثبت پیش‌بینی پیش از سوت آغاز</h2>
+<p>این دفتر در اجرای واقعی قبل از بازی، زمان پیش‌بینی و احتمال مدل را قفل می‌کند. بعداً نتیجه حقیقی به همان رکورد اضافه می‌شود.</p></div>
+<a class="inlineLink" href="./data/prospective.json">سند ثبت‌های واقعی ↗</a></div>
+<div id="prospectiveCards" class="auditGrid"></div>
+<div id="prospectiveNote" class="methodBox" style="margin-top:16px">در حال خواندن پیش‌بینی‌های ثبت‌شده...</div>
+</section>
+<section class="section"><div class="heading"><div><div class="overline">05 · AUDITABILITY & SAFETY</div><h2>پروتکل و حدود علمی</h2></div></div><div id="method" class="methodBox"></div><p class="footnote">بدون اطلاعات xG و ترکیب تاریخی تأیید‌شده نمی‌توان ادعا کرد مدل تفاوت عملکرد بازیکنان را در گذشته آموخته است. استفاده از فهرست فعلی برای گذشته باعث نشت داده می‌شود.</p></section>
 <section class="conclusionBand"><div><div class="overline">VERSIONED REPRODUCIBLE RESEARCH</div><h2>همه داده‌ها و وزن‌ها در ریپو محفوظ‌اند.</h2>
 <p><a class="researchLink" href="https://github.com/prestigegitserp/Taj_soccer_recommender/blob/main/versions/v2/train_v2.py">کد آموزش و بک‌تست V2 ↗</a> · <a class="researchLink" href="./data/evaluation.json">ارزیابی JSON ↗</a> · <a class="researchLink" href="https://github.com/prestigegitserp/Taj_soccer_recommender/blob/main/versions/v2/backtest-predictions.json">پیش‌بینی تک‌تک بازی‌ها ↗</a></p></div><a class="button primary" href="./">بازگشت به داشبورد ←</a></section>
 </main><footer>TAJ V2.0 · SCIENTIFIC MODEL EVALUATION <span>RESEARCH, NOT GUARANTEES</span></footer></div>
