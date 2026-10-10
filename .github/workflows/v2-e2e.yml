@@ -1,0 +1,55 @@
+name: V2 browser + scientific source proof
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/v2/**"
+      - "versions/v2/features.py"
+      - "tests/e2e_v2.mjs"
+      - ".github/workflows/v2-e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: taj-v2-browser
+  cancel-in-progress: true
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Chromium once for both viewports
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify JavaScript syntax
+        run: |
+          node --check docs/v2/app.mjs
+          node --check docs/v2/features.mjs
+          node --check docs/v2/worker.mjs
+          node --check docs/v2/research.mjs
+      - name: Test V2 trained ML inference and V1 archive with actual browser
+        run: |
+          test -s docs/v2/models/forest.json
+          test -s docs/v2/data/history.json
+          test -s docs/v2/data/evaluation.json
+          python -m http.server 8765 --bind 127.0.0.1 --directory docs > /tmp/taj_v2_http.log 2>&1 &
+          sleep 2
+          node tests/e2e_v2.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: taj-v2-desktop-mobile-backtest
+          path: test-results/
+          retention-days: 7
