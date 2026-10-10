@@ -109,4 +109,22 @@ try{
   const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,locale:"fa-IR"});
   await check(mobile,"mobile");
   await mobile.close();
+  // The audit dashboard must render the saved REAL, retrained OOS scores,
+  // never a hardcoded marketing number or a source-less invented graphic.
+  const audit=await browser.newPage({viewport:{width:1366,height:950},locale:"fa-IR"});
+  await audit.goto(site+"backtest.html",{waitUntil:"domcontentloaded",timeout:30000});
+  await audit.waitForFunction(()=>document.querySelectorAll("#modelTable tbody tr").length===5,
+    null,{timeout:20000});
+  const auditError=await audit.locator("#error").textContent();
+  if(auditError?.trim())throw Error("Backtest dashboard error: "+auditError);
+  const source=await audit.locator("#sourceInfo").textContent();
+  const rows=await audit.locator("#modelTable tbody tr").allTextContents();
+  const folds=await audit.locator("#foldCards .fold").count();
+  if(folds!==3||!source.includes("1,753")&& !source.includes("۱٬۷۵۳"))
+    throw Error("Backtest report missing three folds and actual 1753 heldout predictions: "+source);
+  if(!rows.some(x=>x.includes("0.62433"))||!rows.some(x=>x.includes("0.62523")))
+    throw Error("Actual out-of-sample Poisson and ensemble metrics not displayed: "+rows.join(" / "));
+  await audit.screenshot({path:"test-results/taj-walkforward-audit.png",fullPage:true});
+  console.log("AUDIT DASHBOARD VERIFIED:",folds,"folds, Poisson 0.62433, ensemble 0.62523, source",source);
+  await audit.close();
 }finally{await browser.close();}
