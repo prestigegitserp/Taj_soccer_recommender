@@ -87,3 +87,35 @@ try{
    throw Error("نسخه گزارش معتبر نیست");
  render(report);
 }catch(err){e("researchWarning").textContent="خطا در دریافت گزارش واقعی: "+String(err.message||err);}
+
+
+async function renderProspective(){
+  const root=e("prospectiveCards"),note=e("prospectiveNote");
+  try{
+    const response=await fetch("./data/prospective.json",{cache:"no-store"});
+    if(!response.ok)throw Error("دفتر هنوز منتشر نشده است");
+    const ledger=await response.json();
+    if(ledger.schema!=="taj-v2-prospective-v1")throw Error("نسخه دفتر ناسازگار است");
+    root.replaceChildren();
+    const settled=ledger.finalized_results||0;
+    const metrics=ledger.metrics||{};
+    const values=[
+      ["پیش‌بینی ثبت‌شده قبل از بازی",ledger.locked_predictions||0],
+      ["مسابقه پایان‌یافته",settled],
+      ["دقت زنده Poisson",settled?(100*metrics.poisson.accuracy).toFixed(2)+"٪":"—"],
+      ["دقت زنده Challenger",settled?(100*metrics.challenger.accuracy).toFixed(2)+"٪":"—"]
+    ];
+    for(const [label,value] of values){
+      const tile=add(root,"div",undefined,"auditCard");
+      add(tile,"small",label);add(tile,"b",value);
+    }
+    note.textContent=(settled
+      ?"این اعداد فقط بر اساس مسابقات دارای نتیجه ثبت‌شده هستند؛ هنوز نمونه ممکن است کوچک باشد."
+      :"پیش‌بینی‌ها قبل از بازی ثبت شده‌اند؛ هنوز بازی پایان‌یافته‌ای برای سنجش وجود ندارد و هیچ Accuracy فرضی نمایش داده نمی‌شود.")
+      +" آخرین ثبت: "+new Date(ledger.updated_at).toLocaleString("fa-IR")
+      +" · تمام پیش‌بینی‌ها با هش فایل مدل، منبع داده و زمان ثبت قابل حسابرسی‌اند.";
+  }catch(err){
+    note.textContent="اطلاعات دفتر آینده‌نگر فعلاً موجود نیست: "+String(err.message||err);
+  }
+}
+renderProspective();
