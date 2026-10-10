@@ -30,7 +30,9 @@ function render(report){
   $("sourceInfo").textContent="منبع: نتایج واقعی پایان‌یافته ESPN · "
     +report.input_dataset_games.toLocaleString("fa-IR")+" مسابقه خام · "
     +report.eligible_pre_match_examples.toLocaleString("fa-IR")
-    +" نمونه قابل مدل‌سازی · تاریخ آزمون: "
+    +" نمونه قابل مدل‌سازی · "
+    +report.oos_unique_fixtures.toLocaleString("fa-IR")
+    +" مسابقه آزمونِ کاملاً خارج از آموزش · تاریخ آزمون: "
     +report.oos_from.slice(0,10)+" تا "+report.oos_to.slice(0,10)
     +" · تاریخ تهیه گزارش: "+new Date(report.generated_at).toLocaleString("fa-IR");
   const overall=report.overall;
