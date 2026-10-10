@@ -1,0 +1,636 @@
+{
+  "schema": "taj-walkforward-v1",
+  "generated_at": "2026-10-10T00:00:41.659792+00:00",
+  "source": "Actual completed football ESPN scoreboard scores captured in repository training/history.json",
+  "archive_updated_at": "2026-10-09T23:59:23.545116+00:00",
+  "input_dataset_games": 3836,
+  "eligible_pre_match_examples": 3504,
+  "oos_unique_fixtures": 1753,
+  "oos_from": "2025-10-19T13:00:00Z",
+  "oos_to": "2026-10-09T19:00:00Z",
+  "classes": [
+    "home",
+    "draw",
+    "away"
+  ],
+  "formula": "multiclass Brier sum of squared errors across 3 outcomes, unscaled",
+  "temporal_protocol": {
+    "folds": 3,
+    "strategy": "expanding-window rolling-origin; repeated fresh training and validation; non-overlapping test windows",
+    "fractions": [
+      [
+        0.4,
+        0.5,
+        0.65
+      ],
+      [
+        0.55,
+        0.65,
+        0.8
+      ],
+      [
+        0.7,
+        0.8,
+        1.0
+      ]
+    ],
+    "features": "20 strictly pre-kickoff + 22 graph of completed prior fixture edges",
+    "train_only_scaler": true,
+    "validation_only_hyperparameters": [
+      "early stopping",
+      "temperature",
+      "ensemble weight"
+    ],
+    "test_label_used_for_training": false,
+    "same_kickoff_batched": true,
+    "no_current_player_roster_as_historical_covariates": true,
+    "snapshot_caveat": "Historical ESPN completed scoreboards are retrospective. We reconstruct what was known before kickoff by timestamps; original historical API snapshots were not recorded live at those times."
+  },
+  "overall": {
+    "frequency": {
+      "n": 1753,
+      "log_loss": 1.07109,
+      "brier": 0.64801,
+      "accuracy": 0.43925,
+      "correct": 770,
+      "accuracy_ci_95_wilson": [
+        0.41617,
+        0.46259
+      ]
+    },
+    "poisson": {
+      "n": 1753,
+      "log_loss": 1.03884,
+      "brier": 0.62433,
+      "accuracy": 0.47633,
+      "correct": 835,
+      "accuracy_ci_95_wilson": [
+        0.45302,
+        0.49973
+      ]
+    },
+    "mlp_20": {
+      "n": 1753,
+      "log_loss": 1.04803,
+      "brier": 0.63046,
+      "accuracy": 0.46606,
+      "correct": 817,
+      "accuracy_ci_95_wilson": [
+        0.44281,
+        0.48946
+      ]
+    },
+    "graph_42": {
+      "n": 1753,
+      "log_loss": 1.04883,
+      "brier": 0.63126,
+      "accuracy": 0.47119,
+      "correct": 826,
+      "accuracy_ci_95_wilson": [
+        0.44791,
+        0.4946
+      ]
+    },
+    "graph_ensemble": {
+      "n": 1753,
+      "log_loss": 1.03949,
+      "brier": 0.62523,
+      "accuracy": 0.47119,
+      "correct": 826,
+      "accuracy_ci_95_wilson": [
+        0.44791,
+        0.4946
+      ]
+    }
+  },
+  "folds": [
+    {
+      "fold": 1,
+      "train_n": 1402,
+      "validation_n": 349,
+      "test_n": 527,
+      "train_through": "2025-05-24T18:45:00Z",
+      "validation_from": "2025-05-24T19:00:00Z",
+      "validation_through": "2025-10-19T12:00:00Z",
+      "test_from": "2025-10-19T13:00:00Z",
+      "test_through": "2026-01-03T20:05:00Z",
+      "models": {
+        "mlp_20": {
+          "n": 527,
+          "log_loss": 1.04361,
+          "brier": 0.6271,
+          "accuracy": 0.48008,
+          "correct": 253,
+          "accuracy_ci_95_wilson": [
+            0.43772,
+            0.52272
+          ]
+        },
+        "graph_42": {
+          "n": 527,
+          "log_loss": 1.04829,
+          "brier": 0.63134,
+          "accuracy": 0.50095,
+          "correct": 264,
+          "accuracy_ci_95_wilson": [
+            0.45841,
+            0.54348
+          ]
+        },
+        "poisson": {
+          "n": 527,
+          "log_loss": 1.03353,
+          "brier": 0.62155,
+          "accuracy": 0.48387,
+          "correct": 255,
+          "accuracy_ci_95_wilson": [
+            0.44148,
+            0.5265
+          ]
+        },
+        "graph_ensemble": {
+          "n": 527,
+          "log_loss": 1.03353,
+          "brier": 0.62155,
+          "accuracy": 0.48387,
+          "correct": 255,
+          "accuracy_ci_95_wilson": [
+            0.44148,
+            0.5265
+          ]
+        },
+        "frequency": {
+          "n": 527,
+          "log_loss": 1.06622,
+          "brier": 0.64505,
+          "accuracy": 0.44402,
+          "correct": 234,
+          "accuracy_ci_95_wilson": [
+            0.40216,
+            0.4867
+          ]
+        }
+      },
+      "graph_temperature": 1.7,
+      "mlp_temperature": 1.3,
+      "validated_graph_ensemble_weight": 0.0
+    },
+    {
+      "fold": 2,
+      "train_n": 1927,
+      "validation_n": 351,
+      "test_n": 523,
+      "train_through": "2025-11-08T17:30:00Z",
+      "validation_from": "2025-11-08T18:00:00Z",
+      "validation_through": "2026-01-03T20:05:00Z",
+      "test_from": "2026-01-04T11:30:00Z",
+      "test_through": "2026-03-11T17:45:00Z",
+      "models": {
+        "mlp_20": {
+          "n": 523,
+          "log_loss": 1.04072,
+          "brier": 0.62734,
+          "accuracy": 0.47228,
+          "correct": 247,
+          "accuracy_ci_95_wilson": [
+            0.42985,
+            0.51511
+          ]
+        },
+        "graph_42": {
+          "n": 523,
+          "log_loss": 1.05137,
+          "brier": 0.63293,
+          "accuracy": 0.4608,
+          "correct": 241,
+          "accuracy_ci_95_wilson": [
+            0.41852,
+            0.50365
+          ]
+        },
+        "poisson": {
+          "n": 523,
+          "log_loss": 1.03024,
+          "brier": 0.61652,
+          "accuracy": 0.47992,
+          "correct": 251,
+          "accuracy_ci_95_wilson": [
+            0.43741,
+            0.52273
+          ]
+        },
+        "graph_ensemble": {
+          "n": 523,
+          "log_loss": 1.03942,
+          "brier": 0.62459,
+          "accuracy": 0.46463,
+          "correct": 243,
+          "accuracy_ci_95_wilson": [
+            0.4223,
+            0.50747
+          ]
+        },
+        "frequency": {
+          "n": 523,
+          "log_loss": 1.07514,
+          "brier": 0.65066,
+          "accuracy": 0.43212,
+          "correct": 226,
+          "accuracy_ci_95_wilson": [
+            0.39031,
+            0.47492
+          ]
+        }
+      },
+      "graph_temperature": 1.0,
+      "mlp_temperature": 1.3,
+      "validated_graph_ensemble_weight": 0.75
+    },
+    {
+      "fold": 3,
+      "train_n": 2448,
+      "validation_n": 353,
+      "test_n": 703,
+      "train_through": "2026-01-25T13:00:00Z",
+      "validation_from": "2026-01-25T14:00:00Z",
+      "validation_through": "2026-03-11T17:45:00Z",
+      "test_from": "2026-03-11T20:00:00Z",
+      "test_through": "2026-10-09T19:00:00Z",
+      "models": {
+        "mlp_20": {
+          "n": 703,
+          "log_loss": 1.05677,
+          "brier": 0.63531,
+          "accuracy": 0.45092,
+          "correct": 317,
+          "accuracy_ci_95_wilson": [
+            0.41451,
+            0.48787
+          ]
+        },
+        "graph_42": {
+          "n": 703,
+          "log_loss": 1.04734,
+          "brier": 0.62996,
+          "accuracy": 0.45661,
+          "correct": 321,
+          "accuracy_ci_95_wilson": [
+            0.42013,
+            0.49357
+          ]
+        },
+        "poisson": {
+          "n": 703,
+          "log_loss": 1.04921,
+          "brier": 0.63221,
+          "accuracy": 0.46799,
+          "correct": 329,
+          "accuracy_ci_95_wilson": [
+            0.43138,
+            0.50495
+          ]
+        },
+        "graph_ensemble": {
+          "n": 703,
+          "log_loss": 1.04401,
+          "brier": 0.62847,
+          "accuracy": 0.46657,
+          "correct": 328,
+          "accuracy_ci_95_wilson": [
+            0.42998,
+            0.50353
+          ]
+        },
+        "frequency": {
+          "n": 703,
+          "log_loss": 1.07172,
+          "brier": 0.64825,
+          "accuracy": 0.44097,
+          "correct": 310,
+          "accuracy_ci_95_wilson": [
+            0.40468,
+            0.47789
+          ]
+        }
+      },
+      "graph_temperature": 1.2,
+      "mlp_temperature": 1.4,
+      "validated_graph_ensemble_weight": 0.25
+    }
+  ],
+  "per_league": {
+    "eng.1": {
+      "n": 345,
+      "models": {
+        "poisson": {
+          "n": 345,
+          "log_loss": 1.08694,
+          "brier": 0.659,
+          "accuracy": 0.43188,
+          "correct": 149,
+          "accuracy_ci_95_wilson": [
+            0.38065,
+            0.48462
+          ]
+        },
+        "graph_42": {
+          "n": 345,
+          "log_loss": 1.08253,
+          "brier": 0.65587,
+          "accuracy": 0.44058,
+          "correct": 152,
+          "accuracy_ci_95_wilson": [
+            0.38913,
+            0.49334
+          ]
+        },
+        "graph_ensemble": {
+          "n": 345,
+          "log_loss": 1.08284,
+          "brier": 0.65593,
+          "accuracy": 0.44638,
+          "correct": 154,
+          "accuracy_ci_95_wilson": [
+            0.3948,
+            0.49914
+          ]
+        }
+      }
+    },
+    "esp.1": {
+      "n": 356,
+      "models": {
+        "poisson": {
+          "n": 356,
+          "log_loss": 1.03345,
+          "brier": 0.62002,
+          "accuracy": 0.48034,
+          "correct": 171,
+          "accuracy_ci_95_wilson": [
+            0.42893,
+            0.53217
+          ]
+        },
+        "graph_42": {
+          "n": 356,
+          "log_loss": 1.05702,
+          "brier": 0.63627,
+          "accuracy": 0.44944,
+          "correct": 160,
+          "accuracy_ci_95_wilson": [
+            0.39858,
+            0.50138
+          ]
+        },
+        "graph_ensemble": {
+          "n": 356,
+          "log_loss": 1.03827,
+          "brier": 0.6239,
+          "accuracy": 0.46067,
+          "correct": 164,
+          "accuracy_ci_95_wilson": [
+            0.40959,
+            0.5126
+          ]
+        }
+      }
+    },
+    "fra.1": {
+      "n": 279,
+      "models": {
+        "poisson": {
+          "n": 279,
+          "log_loss": 1.0478,
+          "brier": 0.63167,
+          "accuracy": 0.44444,
+          "correct": 124,
+          "accuracy_ci_95_wilson": [
+            0.38728,
+            0.50311
+          ]
+        },
+        "graph_42": {
+          "n": 279,
+          "log_loss": 1.05517,
+          "brier": 0.63634,
+          "accuracy": 0.4552,
+          "correct": 127,
+          "accuracy_ci_95_wilson": [
+            0.39777,
+            0.51384
+          ]
+        },
+        "graph_ensemble": {
+          "n": 279,
+          "log_loss": 1.0432,
+          "brier": 0.62962,
+          "accuracy": 0.45161,
+          "correct": 126,
+          "accuracy_ci_95_wilson": [
+            0.39427,
+            0.51027
+          ]
+        }
+      }
+    },
+    "ger.1": {
+      "n": 273,
+      "models": {
+        "poisson": {
+          "n": 273,
+          "log_loss": 1.01421,
+          "brier": 0.60509,
+          "accuracy": 0.50549,
+          "correct": 138,
+          "accuracy_ci_95_wilson": [
+            0.44652,
+            0.56431
+          ]
+        },
+        "graph_42": {
+          "n": 273,
+          "log_loss": 1.0403,
+          "brier": 0.62302,
+          "accuracy": 0.47985,
+          "correct": 131,
+          "accuracy_ci_95_wilson": [
+            0.42128,
+            0.53898
+          ]
+        },
+        "graph_ensemble": {
+          "n": 273,
+          "log_loss": 1.02358,
+          "brier": 0.61218,
+          "accuracy": 0.49817,
+          "correct": 136,
+          "accuracy_ci_95_wilson": [
+            0.4393,
+            0.55709
+          ]
+        }
+      }
+    },
+    "ita.1": {
+      "n": 357,
+      "models": {
+        "poisson": {
+          "n": 357,
+          "log_loss": 1.02923,
+          "brier": 0.61831,
+          "accuracy": 0.4986,
+          "correct": 178,
+          "accuracy_ci_95_wilson": [
+            0.44703,
+            0.5502
+          ]
+        },
+        "graph_42": {
+          "n": 357,
+          "log_loss": 1.03694,
+          "brier": 0.6227,
+          "accuracy": 0.5042,
+          "correct": 180,
+          "accuracy_ci_95_wilson": [
+            0.45257,
+            0.55574
+          ]
+        },
+        "graph_ensemble": {
+          "n": 357,
+          "log_loss": 1.0292,
+          "brier": 0.61819,
+          "accuracy": 0.48179,
+          "correct": 172,
+          "accuracy_ci_95_wilson": [
+            0.43043,
+            0.53354
+          ]
+        }
+      }
+    },
+    "uefa.champions": {
+      "n": 143,
+      "models": {
+        "poisson": {
+          "n": 143,
+          "log_loss": 0.98974,
+          "brier": 0.58882,
+          "accuracy": 0.52448,
+          "correct": 75,
+          "accuracy_ci_95_wilson": [
+            0.44306,
+            0.60461
+          ]
+        },
+        "graph_42": {
+          "n": 143,
+          "log_loss": 0.98072,
+          "brier": 0.58661,
+          "accuracy": 0.53147,
+          "correct": 76,
+          "accuracy_ci_95_wilson": [
+            0.44993,
+            0.61136
+          ]
+        },
+        "graph_ensemble": {
+          "n": 143,
+          "log_loss": 0.98675,
+          "brier": 0.58845,
+          "accuracy": 0.51748,
+          "correct": 74,
+          "accuracy_ci_95_wilson": [
+            0.4362,
+            0.59785
+          ]
+        }
+      }
+    }
+  },
+  "paired_uncertainty": {
+    "delta_brier": 0.00091,
+    "ci_95": [
+      -0.00341,
+      0.00514
+    ],
+    "confidence_description": "paired block bootstrap, grouped by fixture UTC calendar day",
+    "bootstrap_samples": 2000,
+    "interpretation": "negative is better for ensemble",
+    "statistically_resolved_at_95pct": false
+  },
+  "ensemble_calibration": [
+    {
+      "range": [
+        0,
+        0.4
+      ],
+      "n": 333,
+      "mean_predicted_confidence": 0.3785,
+      "real_accuracy": 0.3724
+    },
+    {
+      "range": [
+        0.4,
+        0.5
+      ],
+      "n": 740,
+      "mean_predicted_confidence": 0.4492,
+      "real_accuracy": 0.4338
+    },
+    {
+      "range": [
+        0.5,
+        0.6
+      ],
+      "n": 447,
+      "mean_predicted_confidence": 0.5452,
+      "real_accuracy": 0.5213
+    },
+    {
+      "range": [
+        0.6,
+        0.7
+      ],
+      "n": 181,
+      "mean_predicted_confidence": 0.6422,
+      "real_accuracy": 0.6188
+    },
+    {
+      "range": [
+        0.7,
+        1
+      ],
+      "n": 52,
+      "mean_predicted_confidence": 0.7524,
+      "real_accuracy": 0.6923
+    }
+  ],
+  "ensemble_confusion": [
+    [
+      572,
+      2,
+      196
+    ],
+    [
+      269,
+      0,
+      165
+    ],
+    [
+      295,
+      0,
+      254
+    ]
+  ],
+  "saved_game_level_predictions": "training/backtest-predictions.json",
+  "conclusion_rule": "Statistical superiority requires paired CI entirely below zero (ensemble - Poisson).",
+  "limitations": [
+    "Not a live prospective forward test; historical fixtures and final scores were retrieved retrospectively.",
+    "No player starting XI, player injuries, xG or odds in the model features.",
+    "ESPN public feed is unofficial and may contain retrospective corrections.",
+    "Three folds share an underlying history; confidence intervals are approximate, grouped by match day.",
+    "Model/architecture were prototyped before this backtest; treat as research development, not a preregistered unbiased benchmark.",
+    "Do not use these metrics as a guarantee or wagering advice."
+  ]
+}
