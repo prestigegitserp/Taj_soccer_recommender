@@ -17,6 +17,7 @@ jobs:
       - run: python scripts/check_frontend.py
       - run: node --check docs/app.mjs
       - run: node --check docs/football-features.mjs
+      - run: node --check docs/backtest-ui.mjs
       - run: node --check docs/litert-worker.mjs
       - run: node --check docs/neural-ui.mjs
       - run: node --test tests/test_browser.mjs tests/test_neural.mjs
