@@ -29,7 +29,8 @@ async function scenario(viewport,name){
   if((await page.locator("#comparison .algo").count())!==4)
     throw Error("All 4 V2 comparisons did not render");
   const history=await page.locator("#historyCount").textContent();
-  if(Number(history.replace(/[^0-9]/g,""))<3000)throw Error("V2 did not load full training history: "+history);
+  const normalizedHistory=history.replace(/[۰-۹]/g,ch=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(ch))).replace(/[^0-9]/g,"");
+  if(Number(normalizedHistory)<3000)throw Error("V2 did not load full training history: "+history);
   await page.screenshot({path:"test-results/taj-v2-"+name+".png",fullPage:true});
   console.log("V2 LOCAL RESULT",name,"status",status,"history",history,"probs",first);
   await page.context().setOffline(true);
