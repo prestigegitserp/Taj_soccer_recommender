@@ -254,14 +254,44 @@ def holdout():
         per_league[league]={"count":len(matches),"v1_poisson":numeric(
           [r["prob"]["v1_poisson"] for r in matches],labels),
           "v2_auto":numeric([r["prob"]["v2_auto"] for r in matches],labels)}
-    # Production model: train on completed historical outcomes ONLY;
-    # reserve most recent 15% for tuning; old 85% for weights.
+    # Production model uses a PRECEDING 85/15 validation period to choose
+    # calibrated hyperparameters; once frozen, it refits to ALL completed
+    # historical games. Training for NEXT (unseen) future matches is legal.
     prod_train=split(dates,.85);prod_val=len(x)
-    production=fit_boost(x,y,prod_train,prod_val,dates,56,seed=SEED+203)
-    production_val=production.predict_proba(x[prod_train:,:56])
+    production_select=fit_boost(x,y,prod_train,prod_val,dates,56,seed=SEED+203)
+    production_val=production_select.predict_proba(x[prod_train:,:56])
     production_temp=min(TEMP,key=lambda t:numeric(scale_probs(production_val,t),
                           y[prod_train:])["log_loss"])
+    calibrated=scale_probs(production_val,production_temp)
+    baseline_valid=poisson_baseline(x[prod_train:,:20])
+    production_rho=min(RHO,key=lambda rho:numeric(
+        dc_probs(x[prod_train:,:20],rho),y[prod_train:])["log_loss"])
+    dc_valid=dc_probs(x[prod_train:,:20],production_rho)
+    choices={w:w*calibrated+(1-w)*dc_valid for w in BLEND}
+    production_weight=min(BLEND,key=lambda w:numeric(
+        choices[w],y[prod_train:])["log_loss"])
+    best=numeric(choices[production_weight],y[prod_train:])
+    old=numeric(baseline_valid,y[prod_train:])
+    if not(best["brier"]<old["brier"]-.001 and best["log_loss"]<old["log_loss"]-.001):
+        production_rho=0.
+        production_weight=0.
+    # After ALL choices are frozen, fit one last production forest to ALL
+    # finished match outcomes; this production model is NEVER evaluated on
+    # those same games as if they were out-of-sample.
+    import lightgbm as lgb
+    full_params=production_select.get_params()
+    full_params["n_estimators"]=production_select.best_iteration_
+    production=lgb.LGBMClassifier(**full_params)
+    cutoff=datetime.fromisoformat(dates[-1].replace("Z","+00:00"))
+    age=lambda t:max(0,(cutoff-datetime.fromisoformat(t.replace("Z","+00:00"))).total_seconds()/86400)
+    weights=np.array([max(.16,math.exp(-math.log(2)*age(t)/400)) for t in dates])
+    production.fit(x[:,:56],y,sample_weight=weights)
+    # No early stop in final refit: set best_iteration_ implicitly via full
+    # n_estimators, rather than accessing an unset sklearn property.
+    production.best_iteration_=full_params["n_estimators"]
     export=save_forest(production,NAMES,production_temp)
+    export["production_rho"]=production_rho
+    export["production_weight"]=production_weight
     predictions=predict_exported(export,x[-24:,:56])
     reference=production.predict_proba(x[-24:,:56])
     deviation=float(np.max(np.abs(predictions-reference)))
@@ -281,9 +311,10 @@ def holdout():
        "per_league":per_league,"paired_95pct":delta,
        "production_forest":{"file":"models/forest.json","tree_count":export["num_trees"],
           "features":len(NAMES),"temperature":production_temp,
+          "rho":production_rho,"ensemble_weight":production_weight,
           "python_js_numerical_max_error":deviation,
-          "trained_until":dates[prod_train-1],
-          "tuned_until":dates[-1]},
+          "trained_until":dates[-1],
+          "tuned_from":dates[prod_train],"tuned_through":dates[-1]},
        "research_warning":"Architecture iterated after seeing V1 backtest; not a pristine preregistered blind benchmark.",
        "promote_for_accuracy":bool(delta["ci_95"][1]<0
           and overall["v2_auto"]["log_loss"]<=overall["v1_poisson"]["log_loss"]),
