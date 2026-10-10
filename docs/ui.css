@@ -142,3 +142,10 @@ footer{border-top:1px solid #263f4e;margin-top:60px;padding:26px 0 50px;display:
 .graphModes button.selected{border-color:#6fe9c3;background:#215b4e;color:#ddfff3}
 .squadGraphCanvas svg{max-height:480px}
 @media(max-width:580px){.graphModes button{font-size:9px;padding:7px 9px}}
+
+/* Audited 1753-match walk-forward backtest, not marketing accuracy. */
+.researchRibbon{display:flex;align-items:center;justify-content:space-between;gap:13px;flex-wrap:wrap;
+  margin:0 auto 23px;padding:14px 19px;background:linear-gradient(105deg,#20463d,#112936);
+  border:1px solid #5d8a75;border-radius:15px;color:#cfede2;font-size:11px;line-height:2}
+.researchRibbon strong{color:#99eac1}.researchRibbon a{color:#b1ffd8;font-weight:700;text-decoration:none;border-bottom:1px solid #6fa98d}
+.researchRibbon a:hover{color:white}
