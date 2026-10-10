@@ -4,6 +4,7 @@
  * matches. No model inference requests to any server.
  */
 import {v2Vector} from "./features.mjs";
+import {graphNeighbors} from "../graph-features.mjs";
 const max=(a,b)=>a>b?a:b;
 const min=(a,b)=>a<b?a:b;
 const send=(type,obj={})=>self.postMessage({type,...obj});
@@ -102,6 +103,7 @@ self.onmessage=async ({data})=>{
       }
       const prior=[...all.values()];
       const vector=v2Vector(game,prior);
+      const graphContext=graphNeighbors(game,prior);
       if(!vector){send("unavailable",{key:message.key,message:"Not enough verified earlier matches for V2 prediction"});return;}
       const poisson=scoreProb(vector,0);
       const rho=Number.isFinite(model.production_rho)?model.production_rho:0;
@@ -114,7 +116,7 @@ self.onmessage=async ({data})=>{
       // with no statistically supported out-of-sample win.
       const deployed=report.promote_for_accuracy?trial:poisson;
       send("result",{key:message.key,poisson,dixon:dc,boosted,candidate:trial,
-        deployed,vector,weight:w,rho,official:report.promote_for_accuracy?"v2":"v1-poisson"});
+        deployed,vector,graphContext,weight:w,rho,official:report.promote_for_accuracy?"v2":"v1-poisson"});
     }
   }catch(err){send("error",{key:message.key,message:String(err?.message||err).slice(0,400)});}
 };
