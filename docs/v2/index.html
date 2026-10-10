@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06141c">
+<meta name="description" content="TAJ V2: advanced football match intelligence with LightGBM, Dixon-Coles, opponent knowledge graph, scientific backtesting and browser-local AI.">
+<title>TAJ V2 | Intelligence OS</title>
+<link rel="stylesheet" href="./style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="backlight"></div>
+<div class="page">
+<header class="bar">
+ <a href="./" class="brand"><span class="mark">T<span>.</span></span><span>TAJ <small>FOOTBALL INTELLIGENCE</small></span></a>
+ <nav><a class="active" href="./">V2 / INTELLIGENCE</a><a href="#models">مدل‌ها</a><a href="#graph">گراف رقبا</a><a href="#evidence">داده‌ها</a><a href="./research.html">بک‌تست V2</a><a href="../v1/">نسخه ۱ ↗</a></nav>
+ <div class="chip connectivity"><span class="circle"></span><span id="status">در حال آماده‌سازی</span></div>
+</header>
+<main>
+<section class="masthead">
+ <div class="mastcopy">
+   <div class="micro"><span class="pulse"></span> VERSION 2.0 · SCIENCE-FIRST FOOTBALL AI</div>
+   <h1>فراتر از نتیجه.<br><em>درون بازی را بخوان.</em></h1>
+   <p>هوش فوتبالی چندلایه بر پایه مسابقات واقعی، گراف دانش رقبا، مدل‌های آماری اصلاح‌شده و یادگیری ماشین. همه محاسبات پیش‌بینی روی دستگاه شما انجام می‌شود؛ نسخه‌های قدیمی بدون تغییر محفوظ‌اند.</p>
+   <div class="heroActions"><a class="button primary" href="#next">تحلیل مسابقات <span>↙</span></a><a class="button secondary" href="./research.html">مشاهده تحقیق و بک‌تست <span>↗</span></a></div>
+ </div>
+ <div class="heroSignal" aria-hidden="true">
+  <div class="radar"><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="sweep"></div><div class="node n1"></div><div class="node n2"></div><div class="node n3"></div><div class="centerDot"></div></div>
+  <div class="radarTop">ON-DEVICE COMPUTE <span>◉</span></div>
+  <div class="radarBottom">PROBABILITY / EVIDENCE / NETWORK</div>
+ </div>
+</section>
+<div class="statsrow">
+ <div class="stat"><small>بازی‌های تاریخیِ مدل</small><strong id="historyCount">—</strong><span>نتیجه واقعی · بدون داده ساختگی</span></div>
+ <div class="stat"><small>مدل‌های در حال رقابت</small><strong>04</strong><span>Poisson · Dixon–Coles · LGBM42 · LGBM56</span></div>
+ <div class="stat"><small>اجرای استنتاج</small><strong>LOCAL</strong><span>داخل Worker مرورگر</span></div>
+ <div class="stat"><small>وضعیت آزمون V2</small><strong id="researchStatus">—</strong><span id="researchStatCaption">دقت باید ثابت شود، نه ادعا</span></div>
+</div>
+<section id="next" class="section liveSection">
+ <div class="heading"><div><div class="overline">01 · LIVE FIXTURE INTELLIGENCE</div><h2>پنج مسابقه نزدیک</h2><p>مسابقات ثبت‌شده در منبع عمومی؛ انتخاب هر مسابقه کل تحلیل را عوض می‌کند.</p></div><span class="pill">LIVE DATA · VERIFIED SOURCE</span></div>
+ <div class="gameLayout">
+  <div class="schedule">
+   <div class="scheduleHead">NEXT FIVE <span id="sourceTime">—</span></div>
+   <div id="fixtures" class="fixtureList"><div class="loading">در حال بارگذاری مسابقات واقعی...</div></div>
+  </div>
+  <div class="predictions">
+   <div id="matchHeader" class="matchHeader"><div class="loading">یک مسابقه را انتخاب کنید...</div></div>
+   <div class="insightOverview">
+    <div><small>CLASSIFIER ENGINE</small><h3>موتور احتمالات بازی</h3></div>
+    <span class="versionCapsule">V2 · LOCAL AI</span>
+   </div>
+   <p class="detail" id="predictionNote">مدل در حال آماده‌سازی است.</p>
+   <div class="outcomeBars" id="probabilities"></div>
+   <div id="qualityMessage" class="interpretation">نتایج مدل تنها پس از تأیید محاسبات مرورگر نمایش داده می‌شوند.</div>
+   <div class="disclosure" id="modelDisclosure"></div>
+  </div>
+ </div>
+</section>
+<section id="models" class="section">
+ <div class="heading"><div><div class="overline">02 · MODEL COMPETITION</div><h2>چهار دیدگاه، یک تصمیم مستند</h2><p>هر مدل باید در مسابقات آینده‌ای که ندیده آزموده شود؛ شبکه بزرگ‌تر الزاماً دقیق‌تر نیست.</p></div><a href="./research.html" class="inlineLink">روش‌شناسی و مقایسه ↗</a></div>
+ <div id="comparison" class="modelGrid">
+  <article class="algo"><div class="algoTag">BASELINE / V1</div><h3>Poisson</h3><p>خط مبنای تخمین تعداد گل؛ معیار مرجع برای تمام مدل‌ها.</p></article>
+  <article class="algo"><div class="algoTag">FOOTBALL STATISTICS</div><h3>Dixon–Coles</h3><p>اصلاح احتمال نتایج کم‌گل و تنظیم پارامتر بر اساس اعتبارسنجی.</p></article>
+  <article class="algo"><div class="algoTag">GRADIENT BOOSTING</div><h3>LightGBM · 56F</h3><p>یادگیری غیرخطی از فرم زمان‌وزن‌دار، قدرت حریفان و سیگنال‌های رقابت.</p></article>
+  <article class="algo"><div class="algoTag">RESEARCH ENSEMBLE</div><h3>Validated Blend</h3><p>ترکیب محافظه‌کار؛ فقط با شواهد آزمون زمانی جایگزین مدل اصلی می‌شود.</p></article>
+ </div>
+</section>
+<section id="graph" class="section">
+ <div class="heading"><div><div class="overline">03 · OPPONENT KNOWLEDGE GRAPH</div><h2>رقابت دو تیم در شبکه واقعی فوتبال</h2><p>قدرت نسبی، حریف مشترک و نتایج آخرین تقابل‌ها؛ گراف براساس مسابقات ثبت‌شده ساخته می‌شود.</p></div><span class="pill">TEMPORAL KNOWLEDGE GRAPH</span></div>
+ <div class="graphDisplay">
+  <div id="rivalGraph" class="graphSurface"><div class="loading">در حال ساخت گراف...</div></div>
+  <div class="legend"><span><i class="won"></i> برد</span><span><i class="drawn"></i> مساوی</span><span><i class="lost"></i> باخت</span><span><i class="common"></i> حریف مشترک</span></div>
+  <div id="graphMetrics" class="graphFacts"></div>
+ </div>
+</section>
+<section id="evidence" class="section">
+ <div class="heading"><div><div class="overline">04 · VERIFIED MATCH EVIDENCE</div><h2>دانش تیم‌ها، نه حدس درباره ترکیب</h2><p>فهرست بازیکنان و آمار مسابقات پایان‌یافته از منبع عمومی. این فهرست، ترکیب ۱۱ نفره قطعی نیست.</p></div></div>
+ <div id="squads" class="squadComparison"></div>
+ <p class="footnote">داده ترکیب فعلی برای آموزش روی گذشته استفاده نمی‌شود؛ چنین کاری به‌علت جابه‌جایی تاریخی بازیکنان، نشت اطلاعات ایجاد می‌کند.</p>
+</section>
+<section class="conclusionBand"><div><div class="overline">EVIDENCE OVER HYPE</div><h2>مدل بهتر، فقط وقتی واقعاً بهتر باشد.</h2><p id="promotionStatement">مدل جدید پیش از ارتقا با Poisson روی آزمون‌های مستقل مقایسه می‌شود. تصمیم خودکار مبتنی بر معیارهای قابل حسابرسی است.</p></div><a href="./research.html" class="button primary">گزارش علمی نسخه ۲ ↗</a></section>
+</main>
+<footer><a href="./">TAJ V2.0</a><div>REAL DATA · LOCAL INFERENCE · TRANSPARENT BACKTESTS</div><div><a href="../v1/">ARCHIVED V1</a> · <a href="https://github.com/prestigegitserp/Taj_soccer_recommender/tree/main/versions/v2">V2 SOURCE</a></div></footer>
+</div>
+<script type="module" src="./app.mjs"></script>
+</body></html>
