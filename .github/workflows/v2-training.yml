@@ -1,0 +1,79 @@
+name: TAJ V2 Scientific Model Training
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'versions/v2/train_v2.py'
+      - 'versions/v2/features.py'
+      - '.github/workflows/v2-training.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '31 4 * * 1'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: taj-v2-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install reproducible CPU-only research environment
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "numpy>=1.26,<2.2" "tensorflow-cpu==2.19.1" "lightgbm==4.6.0"
+      - name: Train challengers on REAL ESPN historic outcomes and three unseen forward test folds
+        env:
+          TF_CPP_MIN_LOG_LEVEL: '2'
+          OMP_NUM_THREADS: '2'
+          TF_NUM_INTEROP_THREADS: '2'
+          TF_NUM_INTRAOP_THREADS: '2'
+        run: python versions/v2/train_v2.py
+      - name: Independently audit V2 chronology, unchanged truth, browser export and metrics
+        run: |
+          python - <<'PY'
+          import json, math
+          from pathlib import Path
+          r=json.loads(Path('docs/v2/data/evaluation.json').read_text())
+          rows=json.loads(Path('versions/v2/backtest-predictions.json').read_text())['matches']
+          trees=json.loads(Path('docs/v2/models/forest.json').read_text())
+          assert len(rows)==r['out_of_sample_games']>=1500
+          assert len({m['id'] for m in rows})==len(rows)
+          assert len(r['folds'])==3
+          assert len(r['features'])==56 and len(trees['features'])==56
+          assert trees['num_trees']%3==0 and trees['num_trees']>=3
+          for f in r['folds']:
+              assert f['train_until']<f['validation_until']<f['test_from']
+              assert len([m for m in rows if m['fold']==f['fold']])==f['test_n']
+          for row in rows:
+              assert row['outcome']==(0 if row['score'][0]>row['score'][1] else 1 if row['score'][0]==row['score'][1] else 2)
+              for p in row['prob'].values():
+                  assert len(p)==3 and abs(sum(p)-1)<1e-5
+          import numpy as np
+          for model,metrics in r['overall'].items():
+              q=np.array([m['prob'][model] for m in rows]);y=np.array([m['outcome'] for m in rows])
+              brier=np.mean(np.sum((q-np.eye(3)[y])**2,axis=1))
+              assert abs(brier-metrics['brier'])<.00002
+          print("V2 causal 3-fold backtest and model export audit PASS", r['overall'])
+          print("V2 promotion protocol:",r['promote_for_accuracy'],"CI",r['paired_95pct'])
+          PY
+      - name: Commit V2 artifacts but leave all V1 snapshots and models unchanged
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git reset --mixed origin/main
+          git add -f docs/v2/data/history.json docs/v2/data/evaluation.json docs/v2/models/forest.json versions/v2/backtest-predictions.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'model(v2): reproducible real 3-fold retrained challenger and guarded experimental forest'
+            git push origin HEAD:main
+          fi
