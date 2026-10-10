@@ -37,7 +37,7 @@ NAME42=FEATURES+GRAPH_NAMES
 NAMES=NAME42+EXTRA_NAMES
 SEED=20261010
 FOLDS=[(.40,.50,.65),(.55,.65,.80),(.70,.80,1.0)]
-RHO=[-.16,-.12,-.08,-.04,0,.04,.08,.12]
+RHO=[-.16,-.12,-.08,-.04,0.]
 BLEND=[0,.25,.5,.75,1.]
 TEMP=[.8,1.,1.2,1.5,1.8]
 def softmax(logits):
